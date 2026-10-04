@@ -1,6 +1,6 @@
 /* INFO: Code shared with settings page */
 
-/* --- Modern card + switch styling (redesign) --- */
+/* --- Modern card + switch styling (redesign). Fixed sizes matching NextZygisk. --- */
 /* INFO: Let the card background show behind the text instead of the page background. */
 .small_card *:not(.slider):not(.flag_content) { background-color: transparent; }
 
@@ -8,8 +8,8 @@
   background: var(--card);
   border: 1px solid var(--card-line);
   border-radius: 16px;
-  padding: clamp(12px, 1.8vw, 20px) clamp(14px, 2vw, 22px);
-  margin: 0 clamp(14px, 3vw, 36px) clamp(10px, 1.4vw, 14px) clamp(14px, 3vw, 36px);
+  padding: 14px 16px;
+  margin: 0 16px 10px 16px;
   justify-content: space-between;
   display: flex;
   align-items: center;
@@ -53,7 +53,7 @@ input:checked + .slider {
 }
 
 .action_card_title {
-  font-size: clamp(15px, 1.9vw, 20px);
+  font-size: 14px;
   font-weight: 600;
   padding-left: 5px;
   padding-top: 2px;
@@ -61,7 +61,7 @@ input:checked + .slider {
 }
 
 .action_card_title_with_flag {
-  font-size: clamp(15px, 1.9vw, 20px);
+  font-size: 14px;
   font-weight: 600;
   padding-left: 5px;
   padding-top: 2px;
@@ -71,7 +71,7 @@ input:checked + .slider {
 }
 
 .action_card_description {
-  font-size: clamp(12.5px, 1.5vw, 16px);
+  font-size: 12px;
   color: var(--desc);
   padding-left: 5px;
   padding-bottom: 2px;
@@ -98,13 +98,13 @@ input:checked + .slider {
 }
 
 .normal_title {
-  font-size: clamp(15px, 1.9vw, 20px);
+  font-size: 14px;
 }
 
 .flag_content {
   padding: 3px 9px;
   border-radius: 6px;
-  font-size: clamp(10.5px, 1.2vw, 13px);
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.3px;
   margin-right: 6px;

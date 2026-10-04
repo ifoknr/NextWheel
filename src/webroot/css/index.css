@@ -64,7 +64,7 @@ a {
   top: 0;
   inset-inline: 0;
   padding: 20px 20px;
-  font-size: 20px;
+  font-size: 18px;
   border-bottom: #585b5d solid 1px;
   z-index: 5;
 }
@@ -79,7 +79,7 @@ a {
            side on tablets and large screens. */
 @media (min-width: 900px) {
   .tw_list {
-    --tw-gutter: clamp(16px, 2.2vw, 36px);
+    --tw-gutter: 16px;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
