@@ -154,18 +154,19 @@ unzip -o "$ZIPFILE" "webroot/*" -d "$MODPATH"
 
 if [ ! -d "/data/adb/treat_wheel" ]; then
   mkdir "/data/adb/treat_wheel"
+fi
 
+if [ ! -f "/data/adb/treat_wheel/state" ]; then
   touch "/data/adb/treat_wheel/state"
 fi
 
-# INFO: Only append the defaults if they are not already there
+# INFO: All protections are enabled by default; the WebUI Actions page is where
+#         users turn them off. Older installers forced ReVanced umount and DenyList
+#         inversion off on every install, so turn those two back on once.
+if [ ! -f "/data/adb/treat_wheel/defaults_all_enabled" ]; then
+  sed -i '/^disable_revanced_mounts_umount=/d; /^disable_denylist_logic_inversion=/d' "/data/adb/treat_wheel/state"
 
-if ! grep -q "disable_revanced_mounts_umount=true" "/data/adb/treat_wheel/state"; then
-  echo "disable_revanced_mounts_umount=true" >> "/data/adb/treat_wheel/state"
-fi
-
-if ! grep -q "disable_denylist_logic_inversion=true" "/data/adb/treat_wheel/state"; then
-  echo "disable_denylist_logic_inversion=true" >> "/data/adb/treat_wheel/state"
+  touch "/data/adb/treat_wheel/defaults_all_enabled"
 fi
 
 ui_print "- Welcome to Treat Wheel $VERSION"
