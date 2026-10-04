@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 
 #include <sched.h>
+#include <signal.h>
 #include <unistd.h>
 #include <pthread.h>
 
@@ -288,9 +289,17 @@ void zygisk_module_entry(struct api_table *table, JNIEnv *env) {
 
 static bool has_crashed = false;
 
-/* INFO: mnt string caching system */
+/* INFO: Processes that died after starting NextWheel's hiding but before finishing it.
+           One death can be Android killing an app while it starts; NextWheel breaking
+           apps kills many, so only a few of them in one boot count as a crash. */
+#define TW_DEATHS_FOR_CRASH 3
+static size_t died_mid_hiding = 0;
+
+/* INFO: mnt string caching system. Every app gets its own companion thread, so the
+           string is only published, under the lock, once it was fully received. */
 static char mnt_string[1024] = { 0 };
 static char *mnt_line = NULL;
+static pthread_mutex_t mnt_string_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /* INFO: RVU system */
 static char **rvx_mounts = NULL;
@@ -583,22 +592,50 @@ void zygisk_companion_entry(int module_fd) {
         continue;
       }
 
-      /* INFO: Check if timestamp was more than 3s for any existing ones */
+      /* INFO: Look for processes that started hiding more than 30s ago without finishing.
+                 One still alive is stuck in NextWheel's code: a crash. One that is gone
+                 died while hiding, which a single kill by Android also explains, so it is
+                 dropped and only counted. */
       pthread_mutex_lock(&process_states_lock);
-      for (size_t i = 0; i < process_states_size; i++) {
-        time_t time_now = mono_sec_now();
+      time_t time_now = mono_sec_now();
+      for (size_t i = 0; i < process_states_size;) {
+        if (time_now - process_states[i].opened_at <= 30 || process_states[i].performed_hiding) {
+          i++;
 
-        if (time_now - process_states[i].opened_at > 30 && !process_states[i].performed_hiding) {
-          LOGE("Process %d has been opened for more than 30 seconds (%d seconds), assuming it has crashed.", process_states[i].pid, (int)(time_now - process_states[i].opened_at));
-
-          free(process_states);
-          process_states = NULL;
-          process_states_size = 0;
-
-          has_crashed = true;
-
-          break;
+          continue;
         }
+
+        if (kill((pid_t)process_states[i].pid, 0) == -1 && errno == ESRCH) {
+          died_mid_hiding++;
+
+          LOGW("Process %d died while hiding (%zu so far this boot).", process_states[i].pid, died_mid_hiding);
+
+          process_states[i] = process_states[process_states_size - 1];
+          process_states_size--;
+
+          if (died_mid_hiding >= TW_DEATHS_FOR_CRASH) {
+            LOGE("%zu processes died while hiding, assuming NextWheel has crashed.", died_mid_hiding);
+
+            has_crashed = true;
+          }
+
+          continue;
+        }
+
+        LOGE("Process %d has been stuck in hiding for more than 30 seconds (%d seconds), assuming it has crashed.", process_states[i].pid, (int)(time_now - process_states[i].opened_at));
+
+        has_crashed = true;
+
+        break;
+      }
+
+      if (has_crashed) {
+        free(process_states);
+        process_states = NULL;
+        process_states_size = 0;
+      } else if (process_states_size == 0 && process_states) {
+        free(process_states);
+        process_states = NULL;
       }
 
       pthread_mutex_unlock(&process_states_lock);
@@ -744,22 +781,48 @@ void zygisk_companion_entry(int module_fd) {
         pthread_mutex_unlock(&process_states_lock);
       }
     } else if (op == DAEMON_GET_MNT_STRING) {
-      if (mnt_string[0] == '\0') {
+      /* INFO: Snapshot under the lock, so a string being received by another thread
+                 is never sent half written. */
+      char cached_string[sizeof(mnt_string)];
+      char *cached_line = NULL;
+
+      pthread_mutex_lock(&mnt_string_lock);
+      bool have_string = mnt_line != NULL && mnt_string[0] != '\0';
+      if (have_string) {
+        memcpy(cached_string, mnt_string, sizeof(cached_string));
+        cached_line = mnt_line;
+      }
+      pthread_mutex_unlock(&mnt_string_lock);
+
+      if (!have_string) {
         /* INFO: First process to hide it, so ask to provide the mnt string */
         uint8_t ret_state = 0;
         write_loop(module_fd, &ret_state, sizeof(ret_state));
 
-        if (read_loop(module_fd, &mnt_line, sizeof(mnt_line)) == -1) {
+        char *received_line = NULL;
+        if (read_loop(module_fd, &received_line, sizeof(received_line)) == -1) {
           PLOGE("Read mnt_line");
 
           goto cleanup;
         }
 
-        if (read_loop(module_fd, mnt_string, sizeof(mnt_string)) == -1) {
+        char received_string[sizeof(mnt_string)];
+        if (read_loop(module_fd, received_string, sizeof(received_string)) == -1) {
           PLOGE("Read mnt_string");
 
           goto cleanup;
         }
+
+        /* INFO: A process that failed to read it sends a NULL line. Keep waiting for
+                   one that succeeds instead of caching nothing. */
+        if (received_line == NULL || received_string[0] == '\0') continue;
+
+        pthread_mutex_lock(&mnt_string_lock);
+        if (mnt_line == NULL) {
+          memcpy(mnt_string, received_string, sizeof(mnt_string));
+          mnt_line = received_line;
+        }
+        pthread_mutex_unlock(&mnt_string_lock);
 
         continue;
       }
@@ -769,14 +832,14 @@ void zygisk_companion_entry(int module_fd) {
       write_loop(module_fd, &ret_state, sizeof(ret_state));
 
       /* INFO: The address of the mnt line */
-      if (write_loop(module_fd, &mnt_line, sizeof(mnt_line)) == -1) {
+      if (write_loop(module_fd, &cached_line, sizeof(cached_line)) == -1) {
         PLOGE("Write mnt_line");
 
         goto cleanup;
       }
 
       /* INFO: The content of the mnt line */
-      if (write_loop(module_fd, mnt_string, sizeof(mnt_string)) == -1) {
+      if (write_loop(module_fd, cached_string, sizeof(cached_string)) == -1) {
         PLOGE("Write mnt_string");
 
         goto cleanup;
