@@ -838,7 +838,7 @@ static void *_page_end(uintptr_t addr) {
   return (void *)((addr + getpagesize() - 1) & ~(getpagesize() - 1));
 }
 
-struct tw_mem_info tw_get_mem_info(void) {
+struct tw_mem_info tw_get_mem_info(struct maps *maps) {
   #ifdef __aarch64__
     int fd = open("/data/adb/modules/treat_wheel/zygisk/arm64-v8a.so", O_RDONLY);
   #elif defined(__arm__)
@@ -882,9 +882,10 @@ struct tw_mem_info tw_get_mem_info(void) {
 
   close(fd);
 
-  struct maps *maps = parse_maps("/proc/self/maps");
+  /* INFO: Caller owns `maps` (reused from the global parse done at init), so it is
+             neither parsed again here nor freed. */
   if (!maps) {
-    LOGE("Failed to parse maps");
+    LOGE("No maps provided");
 
     return (struct tw_mem_info) { 0 };
   }
@@ -898,8 +899,6 @@ struct tw_mem_info tw_get_mem_info(void) {
 
     break;
   }
-
-  free_maps(maps);
 
   return (struct tw_mem_info) {
     .start = (uintptr_t)tw_mem_start,

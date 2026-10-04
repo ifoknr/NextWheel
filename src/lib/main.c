@@ -265,7 +265,7 @@ __attribute__((constructor)) static void tw_initialization(void) {
     return;
   }
 
-  tw_info = tw_get_mem_info();
+  tw_info = tw_get_mem_info(maps);
 
   LOGD("Treat Wheel memory region: start=%p, size=%zu", (void *)tw_info.start, tw_info.size);
 }
