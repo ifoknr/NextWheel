@@ -20,6 +20,12 @@
     </div>
   </div>
 
+  <!-- INFO: Experimental build warning. CI builds strip " display: none;" to show it. -->
+  <div class="tw_alert warn" id="ci_warning" style="margin-bottom: 11px; display: none;">
+    <div class="tw_alert_ic"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3zM12 10v4M12 17v.5"/></svg></div>
+    <div class="tw_alert_tx"><div class="tw_alert_d">{{workingModes.ciBuild}}</div></div>
+  </div>
+
   <!-- INFO: Contextual alert (incompatible modules / crash / disabled count) -->
   <div class="tw_alert" id="tw_banner" style="display: none;">
     <div class="tw_alert_ic" id="tw_banner_ic"></div>
