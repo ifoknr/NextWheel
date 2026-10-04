@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include <errno.h>
 #include <dlfcn.h>
 #include <time.h>
@@ -265,7 +266,7 @@ __attribute__((constructor)) static void tw_initialization(void) {
     return;
   }
 
-  tw_info = tw_get_mem_info();
+  tw_info = tw_get_mem_info(maps);
 
   LOGD("Treat Wheel memory region: start=%p, size=%zu", (void *)tw_info.start, tw_info.size);
 }
@@ -309,6 +310,145 @@ static struct tw_process_state *process_states = NULL;
 static size_t process_states_size = 0;
 static pthread_mutex_t process_states_lock = PTHREAD_MUTEX_INITIALIZER;
 
+/* INFO: state file caching system. The state file is read on every app spawn
+           (DAEMON_CHECK_IGNORING); it almost never changes, so cache the parsed
+           result and only re-read when the file's mtime changes. */
+static struct module_state cached_state = { 0 };
+static bool has_cached_state = false;
+static time_t cached_state_mtime_sec = 0;
+static long cached_state_mtime_nsec = 0;
+static pthread_mutex_t state_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static int parse_state_file(struct module_state *state) {
+  FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
+  if (!fp) {
+    PLOGE("Open state file");
+
+    return -1;
+  }
+
+  memset(state, 0, sizeof(*state));
+
+  static const struct { const char *key; size_t off; } fields[] = {
+    { "ignoring",                             offsetof(struct module_state, is_ignoring) },
+    { "disable_prop_spoofing",                offsetof(struct module_state, disable_prop_spoofing) },
+    { "disable_gsi_hiding",                   offsetof(struct module_state, disable_gsi_hiding) },
+    { "disable_zygote_mountinfo_leak_fixing", offsetof(struct module_state, disable_zygote_mountinfo_leak_fixing) },
+    { "disable_maps_hiding",                  offsetof(struct module_state, disable_maps_hiding) },
+    { "disable_revanced_mounts_umount",       offsetof(struct module_state, disable_revanced_mounts_umount) },
+    { "disable_custom_font_loading",          offsetof(struct module_state, disable_custom_font_loading) },
+    { "disable_denylist_logic_inversion",     offsetof(struct module_state, disable_denylist_logic_inversion) },
+    { "disable_module_loading_traces_hiding", offsetof(struct module_state, disable_module_loading_traces_hiding) },
+    { "disable_frida_traces_hiding",          offsetof(struct module_state, disable_frida_traces_hiding) }
+  };
+
+  char line[128];
+  while (fgets(line, sizeof(line), fp)) {
+    for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+      size_t key_len = strlen(fields[i].key);
+      if (strncmp(line, fields[i].key, key_len) != 0 || line[key_len] != '=') continue;
+
+      bool value = strncmp(line + key_len + 1, "true", strlen("true")) == 0;
+      *(bool *)((char *)state + fields[i].off) = value;
+
+      LOGI("Found %s state: %d", fields[i].key, value);
+
+      break;
+    }
+  }
+
+  fclose(fp);
+
+  return 0;
+}
+
+/* INFO: Custom font caching system. Module fonts only change on reboot, so scan
+           /data/adb/modules once, keep the fds open (O_CLOEXEC), and re-send them
+           on every spawn instead of re-walking every module and re-opening every
+           font file. */
+static int *cached_font_fds = NULL;
+static size_t cached_fonts_length = 0;
+static bool fonts_scanned = false;
+static pthread_mutex_t fonts_lock = PTHREAD_MUTEX_INITIALIZER;
+
+/* INFO: Returns 0 on success (*out_len may be 0), -1 on hard failure. */
+static int scan_fonts(int **out_fds, size_t *out_len) {
+  DIR *dir = opendir("/data/adb/modules");
+  if (!dir) {
+    PLOGE("Open /data/adb/modules");
+
+    return -1;
+  }
+
+  int *fonts_fds = NULL;
+  size_t fonts_length = 0;
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (entry->d_type != DT_DIR || str_equal(entry->d_name, ".") || str_equal(entry->d_name, "..")) continue;
+
+    char path[PATH_MAX];
+    snprintf(path, sizeof(path), "/data/adb/modules/%s/disable", entry->d_name);
+
+    if (access(path, F_OK) == 0) {
+      LOGI("Module %s is disabled, skipping.", entry->d_name);
+
+      continue;
+    }
+
+    static const char *font_subdirs[] = { "system/fonts", "product/fonts" };
+    for (size_t i = 0; i < sizeof(font_subdirs) / sizeof(font_subdirs[0]); i++) {
+      snprintf(path, sizeof(path), "/data/adb/modules/%s/%s", entry->d_name, font_subdirs[i]);
+
+      DIR *fonts_dir = opendir(path);
+      if (!fonts_dir) continue;
+
+      struct dirent *font_entry;
+      while ((font_entry = readdir(fonts_dir)) != NULL) {
+        if (font_entry->d_type != DT_REG) continue;
+
+        char font_file[PATH_MAX];
+        snprintf(font_file, sizeof(font_file), "%s/%s", path, font_entry->d_name);
+
+        LOGD("Found font file: %s", font_file);
+
+        int fd = open(font_file, O_RDONLY | O_CLOEXEC);
+        if (fd == -1) {
+          PLOGE("Open font file");
+
+          continue;
+        }
+
+        int *tmp_fonts_fds = realloc(fonts_fds, sizeof(int) * (fonts_length + 1));
+        if (!tmp_fonts_fds) {
+          PLOGE("Failed to allocate memory for fonts_fds");
+
+          close(fd);
+          closedir(fonts_dir);
+          closedir(dir);
+
+          for (size_t j = 0; j < fonts_length; j++) close(fonts_fds[j]);
+          free(fonts_fds);
+
+          return -1;
+        }
+        fonts_fds = tmp_fonts_fds;
+
+        fonts_fds[fonts_length++] = fd;
+      }
+
+      closedir(fonts_dir);
+    }
+  }
+
+  closedir(dir);
+
+  *out_fds = fonts_fds;
+  *out_len = fonts_length;
+
+  return 0;
+}
+
 void zygisk_companion_entry(int module_fd) {
   while (1) {
     enum daemon_operations op;
@@ -323,138 +463,66 @@ void zygisk_companion_entry(int module_fd) {
     }
 
     if (op == DAEMON_CHECK_IGNORING) {
-      FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
-      if (!fp) {
-        PLOGE("Open state file");
+      struct module_state state;
+      struct stat st;
+      bool have_stat = stat("/data/adb/treat_wheel/state", &st) == 0;
+      bool got_cached = false;
 
-        goto cleanup;
+      /* INFO: Serve from cache when the file is unchanged since last parse. */
+      if (have_stat) {
+        pthread_mutex_lock(&state_lock);
+        if (has_cached_state &&
+            cached_state_mtime_sec == st.st_mtim.tv_sec &&
+            cached_state_mtime_nsec == st.st_mtim.tv_nsec) {
+          state = cached_state;
+          got_cached = true;
+        }
+        pthread_mutex_unlock(&state_lock);
       }
 
-      struct module_state state = { 0 };
+      if (!got_cached) {
+        if (parse_state_file(&state) == -1) {
+          goto cleanup;
+        }
 
-      char line[128];
-      while (fgets(line, sizeof(line), fp)) {
-        if (str_starts_with(line, "ignoring=")) {
-          state.is_ignoring = strncmp(line + strlen("ignoring="), "true", strlen("true")) == 0;
-
-          LOGI("Found ignoring state: %d", state.is_ignoring);
-        } else if (str_starts_with(line, "disable_prop_spoofing=")) {
-          state.disable_prop_spoofing = strncmp(line + strlen("disable_prop_spoofing="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_prop_spoofing state: %d", state.disable_prop_spoofing);
-        } else if (str_starts_with(line, "disable_gsi_hiding=")) {
-          state.disable_gsi_hiding = strncmp(line + strlen("disable_gsi_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_gsi_hiding state: %d", state.disable_gsi_hiding);
-        } else if (str_starts_with(line, "disable_zygote_mountinfo_leak_fixing=")) {
-          state.disable_zygote_mountinfo_leak_fixing = strncmp(line + strlen("disable_zygote_mountinfo_leak_fixing="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_zygote_mountinfo_leak_fixing state: %d", state.disable_zygote_mountinfo_leak_fixing);
-        } else if (str_starts_with(line, "disable_maps_hiding=")) {
-          state.disable_maps_hiding = strncmp(line + strlen("disable_maps_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_maps_hiding state: %d", state.disable_maps_hiding);
-        } else if (str_starts_with(line, "disable_revanced_mounts_umount=")) {
-          state.disable_revanced_mounts_umount = strncmp(line + strlen("disable_revanced_mounts_umount="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_revanced_mounts_umount state: %d", state.disable_revanced_mounts_umount);
-        } else if (str_starts_with(line, "disable_custom_font_loading=")) {
-          state.disable_custom_font_loading = strncmp(line + strlen("disable_custom_font_loading="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_custom_font_loading state: %d", state.disable_custom_font_loading);
-        } else if (str_starts_with(line, "disable_denylist_logic_inversion=")) {
-          state.disable_denylist_logic_inversion = strncmp(line + strlen("disable_denylist_logic_inversion="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_denylist_logic_inversion state: %d", state.disable_denylist_logic_inversion);
-        } else if (str_starts_with(line, "disable_module_loading_traces_hiding=")) {
-          state.disable_module_loading_traces_hiding = strncmp(line + strlen("disable_module_loading_traces_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_module_loading_traces_hiding state: %d", state.disable_module_loading_traces_hiding);
-        } else if (str_starts_with(line, "disable_frida_traces_hiding=")) {
-          state.disable_frida_traces_hiding = strncmp(line + strlen("disable_frida_traces_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_frida_traces_hiding state: %d", state.disable_frida_traces_hiding);
+        if (have_stat) {
+          pthread_mutex_lock(&state_lock);
+          cached_state = state;
+          cached_state_mtime_sec = st.st_mtim.tv_sec;
+          cached_state_mtime_nsec = st.st_mtim.tv_nsec;
+          has_cached_state = true;
+          pthread_mutex_unlock(&state_lock);
         }
       }
-
-      fclose(fp);
 
       write_loop(module_fd, &state, sizeof(state));
     } else if (op == DAEMON_CHECK_FONTS) {
-      DIR *dir = opendir("/data/adb/modules");
-      if (!dir) {
-        PLOGE("Open /data/adb/modules");
+      /* INFO: Scan once and cache the open fds; re-send them on later spawns. */
+      pthread_mutex_lock(&fonts_lock);
+      if (!fonts_scanned) {
+        int *fds = NULL;
+        size_t len = 0;
 
-        uint8_t ret_state = 0;
-        write_loop(module_fd, &ret_state, sizeof(ret_state));
+        if (scan_fonts(&fds, &len) == -1) {
+          pthread_mutex_unlock(&fonts_lock);
 
-        goto cleanup;
-      }
+          uint8_t ret_state = 0;
+          write_loop(module_fd, &ret_state, sizeof(ret_state));
 
-      int *fonts_fds = NULL;
-      size_t fonts_length = 0;
-
-      struct dirent *entry;
-      while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_type != DT_DIR || str_equal(entry->d_name, ".") || str_equal(entry->d_name, "..")) continue;
-
-        char path[PATH_MAX];
-        snprintf(path, sizeof(path), "/data/adb/modules/%s/disable", entry->d_name);
-
-        if (access(path, F_OK) == 0) {
-          LOGI("Module %s is disabled, skipping.", entry->d_name);
-
-          continue;
+          goto cleanup;
         }
 
-        static const char *font_subdirs[] = { "system/fonts", "product/fonts" };
-        for (size_t i = 0; i < sizeof(font_subdirs) / sizeof(font_subdirs[0]); i++) {
-          snprintf(path, sizeof(path), "/data/adb/modules/%s/%s", entry->d_name, font_subdirs[i]);
+        cached_font_fds = fds;
+        cached_fonts_length = len;
+        fonts_scanned = true;
 
-          DIR *fonts_dir = opendir(path);
-          if (!fonts_dir) continue;
-
-          struct dirent *font_entry;
-          while ((font_entry = readdir(fonts_dir)) != NULL) {
-            if (font_entry->d_type != DT_REG) continue;
-
-            char font_file[PATH_MAX];
-            snprintf(font_file, sizeof(font_file), "%s/%s", path, font_entry->d_name);
-
-            LOGD("Found font file: %s", font_file);
-
-            int fd = open(font_file, O_RDONLY | O_CLOEXEC);
-            if (fd == -1) {
-              PLOGE("Open font file");
-
-              continue;
-            }
-
-            int *tmp_fonts_fds = realloc(fonts_fds, sizeof(int) * (fonts_length + 1));
-            if (!tmp_fonts_fds) {
-              PLOGE("Failed to allocate memory for fonts_fds");
-
-              close(fd);
-              closedir(fonts_dir);
-              closedir(dir);
-
-              free(fonts_fds);
-
-              uint8_t ret_state = 0;
-              write_loop(module_fd, &ret_state, sizeof(ret_state));
-
-              goto cleanup;
-            }
-            fonts_fds = tmp_fonts_fds;
-
-            fonts_fds[fonts_length++] = fd;
-          }
-
-          closedir(fonts_dir);
-        }
+        LOGI("Scanned and cached %zu fonts.", len);
       }
 
-      closedir(dir);
+      /* INFO: Immutable after the first scan, so safe to use outside the lock. */
+      int *fonts_fds = cached_font_fds;
+      size_t fonts_length = cached_fonts_length;
+      pthread_mutex_unlock(&fonts_lock);
 
       uint8_t ret_state = fonts_length != 0 ? 1 : 0;
       write_loop(module_fd, &ret_state, sizeof(ret_state));
@@ -470,11 +538,7 @@ void zygisk_companion_entry(int module_fd) {
       if (write_loop(module_fd, &fonts_length, sizeof(fonts_length)) == -1) {
         PLOGE("Write fonts length");
 
-        for (size_t i = 0; i < fonts_length; i++) {
-          close(fonts_fds[i]);
-        }
-        free(fonts_fds);
-
+        /* INFO: Cached fds are kept open for reuse; do not close them here. */
         goto cleanup;
       }
 
@@ -483,11 +547,8 @@ void zygisk_companion_entry(int module_fd) {
           PLOGE("Write font fd");
         }
 
-        /* Close the local FD after sending it to avoid leaking file descriptors in the companion process. */
-        close(fonts_fds[i]);
+        /* INFO: Do NOT close; fds are cached and re-sent on later spawns. */
       }
-
-      free(fonts_fds);
 
       LOGI("Finished sending fonts to be loaded.");
     } else if (op == DAEMON_CHECK_POINT) {

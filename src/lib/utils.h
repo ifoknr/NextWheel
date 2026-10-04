@@ -147,6 +147,6 @@ time_t mono_sec_now(void);
   bool update_mnt_ns(enum mount_namespace_state mns_state);
 #endif
 
-struct tw_mem_info tw_get_mem_info(void);
+struct tw_mem_info tw_get_mem_info(struct maps *maps);
 
 #endif /* UTILS_H */
