@@ -139,6 +139,97 @@ export async function onceViewAfterUpdate() {
   lastStrings = strings
 }
 
+/* INFO: Live protections dashboard. Maps each state-file "disable_*" flag to a
+           protection; a protection is active when its disable flag is not set
+           (and the module is not ignoring everything). */
+const TW_PROTECTIONS = [
+  ['zygoteMountInfoLeakFixing', 'disable_zygote_mountinfo_leak_fixing'],
+  ['mapsHiding', 'disable_maps_hiding'],
+  ['revancedMountsUmount', 'disable_revanced_mounts_umount'],
+  ['customFontLoading', 'disable_custom_font_loading'],
+  ['denylistLogicInversion', 'disable_denylist_logic_inversion'],
+  ['moduleLoadingTracesHiding', 'disable_module_loading_traces_hiding'],
+  ['fridaTracesHiding', 'disable_frida_traces_hiding'],
+  ['propSpoofing', 'disable_prop_spoofing'],
+  ['gsiHiding', 'disable_gsi_hiding']
+]
+
+async function _readStateFlags() {
+  const result = await exec('cat /data/adb/treat_wheel/state')
+  const flags = {}
+
+  if (result.errno === 0) {
+    result.stdout.split('\n').forEach((line) => {
+      const idx = line.indexOf('=')
+      if (idx === -1) return;
+
+      flags[line.slice(0, idx).trim()] = line.slice(idx + 1).trim() === 'true'
+    })
+  }
+
+  return flags
+}
+
+async function refreshDashboard() {
+  /* INFO: Only poll while the home page is actually on screen. */
+  if (whichCurrentPage() !== 'home') return;
+  if (typeof document.visibilityState === 'string' && document.visibilityState !== 'visible') return;
+
+  const list = document.getElementById('tw_protections_list')
+  if (!list) return;
+
+  const strings = await getStrings(whichCurrentPage())
+  if (!strings || !strings.protections) return;
+
+  const flags = await _readStateFlags()
+  const ignoring = flags['ignoring'] === true
+
+  let active = 0
+  let html = ''
+  for (const [key, disableKey] of TW_PROTECTIONS) {
+    const isActive = !ignoring && flags[disableKey] !== true
+    if (isActive) active++
+
+    const label = strings.protections.items[key] || key
+    const stateText = ignoring ? strings.protections.paused : (isActive ? strings.protections.active : strings.protections.inactive)
+    const stateClass = ignoring ? 'tw_prot_paused' : (isActive ? 'tw_prot_on' : 'tw_prot_off')
+
+    html += `<div class="tw_prot_row dimc"><span class="tw_prot_name dimc">${label}</span><span class="tw_prot_pill ${stateClass}">${stateText}</span></div>`
+  }
+  list.innerHTML = html
+
+  const summary = document.getElementById('tw_protections_summary')
+  if (summary) summary.textContent = strings.protections.summary.replace('%s', active).replace('%s', TW_PROTECTIONS.length)
+
+  /* INFO: Keep the runtime status card live too, unless a static condition
+             (incompatible modules / disabled) already owns it. */
+  if (!globalThis.twStatusLocked) {
+    const status = await exec('cat /data/adb/treat_wheel/status')
+    const rootCss = document.querySelector(':root')
+    const tw_state = document.getElementById('tw_state')
+    const tw_icon_state = document.getElementById('tw_icon_state')
+    if (!tw_state || !tw_icon_state) return;
+
+    if (ignoring) {
+      tw_state.innerHTML = strings.workingModes.ignoring
+      rootCss.style.setProperty('--bright', '#808080')
+      tw_icon_state.innerHTML = '<img class="brightc" src="assets/warn.svg">'
+    } else if (status.errno !== 0) {
+      tw_state.innerHTML = strings.workingModes.unknown
+      rootCss.style.setProperty('--bright', '#766000')
+      tw_icon_state.innerHTML = '<img class="brightc" src="assets/warn.svg">'
+    } else if (status.stdout === 'crashed') {
+      tw_state.innerHTML = strings.workingModes.crashed
+      rootCss.style.setProperty('--bright', '#766000')
+      tw_icon_state.innerHTML = '<img class="brightc" src="assets/warn.svg">'
+    } else {
+      tw_state.innerHTML = strings.workingModes.working
+      rootCss.style.setProperty('--bright', '#3a4857')
+      tw_icon_state.innerHTML = '<img class="brightc" src="assets/tick.svg">'
+    }
+  }
+}
+
 export async function load() {
   if (lastStrings !== null) return;
 
@@ -165,11 +256,16 @@ export async function load() {
 
     rootCss.style.setProperty('--bright', '#ff0000')
     tw_icon_state.innerHTML = '<img class="brightc" src="assets/mark.svg">'
+
+    /* INFO: Static condition owns the status card; keep live refresh from overwriting it. */
+    globalThis.twStatusLocked = true
   } else if (await _isModuleDisabled()) {
     tw_state.innerHTML = strings.workingModes.disabled
 
     rootCss.style.setProperty('--bright', '#808080')
     tw_icon_state.innerHTML = '<img class="brightc" src="assets/warn.svg">'
+
+    globalThis.twStatusLocked = true
   } else if (status.errno !== 0) {
     tw_state.innerHTML = strings.workingModes.unknown
 
@@ -190,6 +286,12 @@ export async function load() {
 
     rootCss.style.setProperty('--bright', '#3a4857')
     tw_icon_state.innerHTML = '<img class="brightc" src="assets/tick.svg">'
+  }
+
+  /* INFO: Initial dashboard paint + live polling while home is visible. */
+  await refreshDashboard()
+  if (!globalThis.twDashboardTimer) {
+    globalThis.twDashboardTimer = setInterval(() => { refreshDashboard() }, 4000)
   }
 
   /* INFO: This hides the throbber screen */

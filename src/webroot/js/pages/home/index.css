@@ -6,3 +6,52 @@
 .lock {
   color: var(--lock);
 }
+
+/* INFO: Live protections dashboard */
+.tw_prot_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tw_prot_list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tw_prot_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tw_prot_name {
+  font-size: 0.98em;
+}
+
+.tw_prot_pill {
+  font-size: 0.78em;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 50px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.tw_prot_on {
+  color: #d6f5dd;
+  background: #1f7a3d !important;
+}
+
+.tw_prot_off {
+  color: #e9d7d6;
+  background: #6b2522 !important;
+}
+
+.tw_prot_paused {
+  color: #e8e2c4;
+  background: #766000 !important;
+}

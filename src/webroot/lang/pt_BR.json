@@ -16,6 +16,24 @@
       "rootImpl": "Implementação de root",
       "rootImpls": {
         "multiple": "Vários"
+      },
+      "protections": {
+        "title": "Protections",
+        "active": "Active",
+        "inactive": "Off",
+        "paused": "Paused",
+        "summary": "%s / %s active",
+        "items": {
+          "zygoteMountInfoLeakFixing": "Zygote mountinfo leak fixing",
+          "mapsHiding": "Maps hiding",
+          "revancedMountsUmount": "ReVanced mounts umount",
+          "customFontLoading": "Custom font loading",
+          "denylistLogicInversion": "Denylist logic inversion",
+          "moduleLoadingTracesHiding": "Module-loading traces hiding",
+          "fridaTracesHiding": "Frida traces hiding",
+          "propSpoofing": "Prop spoofing",
+          "gsiHiding": "GSI traces hiding"
+        }
       }
     },
     "actions": {
