@@ -77,7 +77,9 @@
   animation: openNav 0.15s;
 }
 
-@media (min-width:961px)  {
+/* INFO: The floating pill navbar is meant for desktop browsers with a mouse. Touch
+           tablets keep the full-width bar with labels, which is easier to read and tap. */
+@media (min-width:961px) and (hover: hover) and (pointer: fine) {
   #navbar {
     background-color: var(--desktop-navbar);
     transform: scale(0.85);
