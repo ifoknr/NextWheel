@@ -112,6 +112,17 @@ const RING = {
 /* INFO: One-time environment facts, read in load() and reused across refreshes. */
 const twEnv = { version: '???', rootImpl: '—', device: { android: '—', arch: '—' }, disabled: false, lockStatic: false }
 
+/* INFO: Time in the WebUI language (Arabic gets its own word order), with Latin digits. */
+function _timeNow() {
+  const lang = (localStorage.getItem('/TreatWheel/language') || 'en_US').replace('_', '-')
+  const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+  try {
+    return new Date().toLocaleTimeString(`${lang}-u-nu-latn`, opts)
+  } catch (e) {
+    return new Date().toLocaleTimeString([], opts)
+  }
+}
+
 function esc(s) { return String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) }
 
 async function refreshDashboard() {
@@ -181,7 +192,7 @@ async function refreshDashboard() {
   if (stateEl) stateEl.innerHTML = esc(title)
   if (subEl) subEl.textContent = sub
   const updatedEl = document.getElementById('tw_updated')
-  if (updatedEl) updatedEl.textContent = strings.dash.updated.replace('%s', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+  if (updatedEl) updatedEl.textContent = strings.dash.updated.replace('%s', _timeNow())
   if (chipsEl) chipsEl.innerHTML =
     `<span class="tw_chip v">${esc(twEnv.version)}</span>` +
     `<span class="tw_chip">${esc(twEnv.rootImpl)}</span>` +

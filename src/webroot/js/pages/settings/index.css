@@ -19,6 +19,9 @@
 
 /* INFO: Code shared with actions page */
 
+/* INFO: Let the card background show behind the text instead of the page background. */
+.small_card *:not(.slider):not(.flag_content) { background-color: transparent; }
+
 .slider {
   position: absolute;
   inset: 0; 

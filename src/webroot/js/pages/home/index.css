@@ -6,6 +6,11 @@
   padding: clamp(16px, 2.4vw, 30px) clamp(14px, 3vw, 36px) 120px;
 }
 
+/* INFO: The global `*` rule paints every element with the page background, which
+           left dark boxes behind text. Let the dashboard cards show through; rules
+           below that set their own background still win. */
+.tw_home :where(.tw_hdr, .tw_hero, .tw_alert, .tw_cell, .tw_device) * { background-color: transparent; }
+
 .tw_hdr {
   display: flex;
   align-items: flex-start;

@@ -572,13 +572,21 @@ export function getStrings(pageId, forceDefault = false) {
     })
 }
 
+/* INFO: Arabic and other right-to-left languages flip the page direction. */
+function applyLanguageDirection(langId) {
+  document.documentElement.setAttribute('dir', /^(ar|fa|he|ur)_/.test(langId || '') ? 'rtl' : 'ltr')
+}
+
 export function setLanguage(langId) {
   localStorage.setItem(`/${moduleName}/language`, langId)
+  applyLanguageDirection(langId)
 
   sufferedUpdate.length = 0
 }
 
 (async () => {
+  applyLanguageDirection(localStorage.getItem(`/${moduleName}/language`))
+
   await loadPages()
 
   loadPage('home')
