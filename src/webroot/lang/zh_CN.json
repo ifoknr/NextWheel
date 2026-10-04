@@ -10,7 +10,9 @@
         "unknown": "状态无法获取",
         "disabled": "已关闭",
         "incompatibleModules": "检测到不兼容的模块：: %s",
-        "ciBuild": "检测到实验性构建，一些功能可能不会按预期工作。"
+        "ciBuild": "检测到实验性构建，一些功能可能不会按预期工作。",
+        "zygiskDown": "Zygisk 未运行",
+        "umountOff": "Root 卸载已关闭"
       },
       "version": "版本",
       "rootImpl": "Root 实现方式",
@@ -47,7 +49,9 @@
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
         "crashedDesc": "Treat Wheel crashed while hiding",
-        "unknownDesc": "Could not read module status"
+        "unknownDesc": "Could not read module status",
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {

@@ -10,7 +10,9 @@
         "unknown": "Невозможно определить",
         "disabled": "Отключен",
         "incompatibleModules": "Обнаружены несовместимые модули: %s",
-        "ciBuild": "Обнаружена экспериментальная сборка. Некоторые функции могут работать некорректно."
+        "ciBuild": "Обнаружена экспериментальная сборка. Некоторые функции могут работать некорректно.",
+        "zygiskDown": "Zygisk не запущен",
+        "umountOff": "Отмонтирование root отключено"
       },
       "version": "Версия",
       "rootImpl": "Реализация Root",
@@ -47,7 +49,9 @@
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
         "crashedDesc": "Treat Wheel crashed while hiding",
-        "unknownDesc": "Could not read module status"
+        "unknownDesc": "Could not read module status",
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {

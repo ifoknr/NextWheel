@@ -53,6 +53,42 @@ async function _readStateFlags() {
   return flags
 }
 
+/* INFO: Treat Wheel only runs inside apps that NextZygisk/ReZygisk inject into. If the
+           Zygisk monitor, daemon or Zygote injection stops, new apps are left unhidden
+           while the last status file still reads "hiding", so ask the provider directly
+           through the state.json it publishes. NextZygisk can also be told to skip the
+           root unmount, which leaves the "clean" namespace Treat Wheel requests mounted. */
+async function _readZygiskHealth() {
+  const health = { down: false, reason: '', umountOff: false }
+
+  health.umountOff = await _fileExists('/data/adb/nextzygisk/umount_disabled')
+
+  const result = await exec('cat /data/adb/rezygisk/state.json')
+  if (result.errno !== 0 || !result.stdout) return health
+
+  let state
+  try { state = JSON.parse(result.stdout) } catch (e) { return health }
+
+  /* INFO: monitor.state is the tracer's enum, where 0 is TRACING. */
+  if (state.monitor && String(state.monitor.state) !== '0') {
+    health.down = true
+    if (state.monitor.reason) health.reason = state.monitor.reason
+  }
+
+  for (const daemon of Object.values(state.rezygiskd || {})) {
+    if (Number(daemon.state) !== 0) continue;
+
+    health.down = true
+    if (!health.reason && daemon.reason) health.reason = daemon.reason
+  }
+
+  for (const injected of Object.values(state.zygote || {})) {
+    if (Number(injected) === 0) health.down = true
+  }
+
+  return health
+}
+
 async function _getVersion() {
   const moduleProp = await exec('cat /data/adb/modules/treat_wheel/module.prop')
   if (moduleProp.errno !== 0) return '???'
@@ -138,6 +174,7 @@ async function refreshDashboard() {
   const flags = await _readStateFlags()
   const ignoring = flags['ignoring'] === true
   const status = await exec('cat /data/adb/treat_wheel/status')
+  const zygisk = await _readZygiskHealth()
   const incompatible = globalThis.incompatibleModules
 
   /* Protections grid */
@@ -168,12 +205,22 @@ async function refreshDashboard() {
     bType = 'err'; bTitle = strings.dash.incompatibleTitle; bDesc = incompatible.join(listSep)
   } else if (twEnv.disabled) {
     heroCls = 'neutral'; ring = 'neutral'; title = strings.workingModes.disabled
+  } else if (zygisk.down) {
+    heroCls = 'err'; ring = 'err'; title = strings.workingModes.zygiskDown; bType = 'err'; bTitle = strings.workingModes.zygiskDown
+    /* INFO: The reason comes from NextZygisk in English. Isolate it (FSI…PDI) so it
+               stays in one piece inside right-to-left text. */
+    bDesc = zygisk.reason ? `${strings.dash.zygiskDownDesc} ⁨(${zygisk.reason})⁩` : strings.dash.zygiskDownDesc
   } else if (status.errno !== 0) {
     heroCls = 'warn'; ring = 'warn'; title = strings.workingModes.unknown; bType = 'warn'; bTitle = strings.workingModes.unknown; bDesc = strings.dash.unknownDesc
   } else if (ignoring) {
     heroCls = 'neutral'; ring = 'neutral'; title = strings.workingModes.ignoring
   } else if (status.stdout === 'crashed') {
     heroCls = 'err'; ring = 'err'; title = strings.workingModes.crashed; bType = 'err'; bTitle = strings.workingModes.crashed; bDesc = strings.dash.crashedDesc
+  } else if (zygisk.umountOff) {
+    heroCls = 'warn'; ring = 'warn'; title = strings.workingModes.umountOff
+    sub = strings.dash.heroActive.replace('%s', active).replace('%s', total)
+    deg = Math.round((active / total) * 360)
+    bType = 'warn'; bTitle = strings.workingModes.umountOff; bDesc = strings.dash.umountOffDesc
   } else {
     heroCls = 'ok'; ring = 'ok'; title = strings.workingModes.working
     sub = strings.dash.heroActive.replace('%s', active).replace('%s', total)

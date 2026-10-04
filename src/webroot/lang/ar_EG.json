@@ -10,7 +10,9 @@
         "unknown": "تعذّر تحديد الحالة",
         "disabled": "معطّل",
         "incompatibleModules": "تم اكتشاف وحدات غير متوافقة: %s",
-        "ciBuild": "هذه نسخة تجريبية. قد لا تعمل بعض الميزات كما هو متوقع."
+        "ciBuild": "هذه نسخة تجريبية. قد لا تعمل بعض الميزات كما هو متوقع.",
+        "zygiskDown": "Zygisk لا يعمل",
+        "umountOff": "فك تركيب الروت متوقف"
       },
       "version": "الإصدار",
       "rootImpl": "نوع الروت",
@@ -47,7 +49,9 @@
         "disabledTitle": "حمايات متوقفة: %s",
         "incompatibleTitle": "تم اكتشاف وحدات غير متوافقة",
         "crashedDesc": "توقف Treat Wheel بسبب خطأ أثناء الإخفاء",
-        "unknownDesc": "تعذّرت قراءة حالة الوحدة"
+        "unknownDesc": "تعذّرت قراءة حالة الوحدة",
+        "zygiskDownDesc": "NextZygisk/ReZygisk لا يحقن التطبيقات، لذلك Treat Wheel لا يُخفي شيئًا في التطبيقات التي تُفتح الآن",
+        "umountOffDesc": "فك تركيب الروت متوقف في NextZygisk، لذلك التطبيقات التي يُخفي عنها Treat Wheel الروت ما زالت ترى آثاره. أعد تفعيله من واجهة NextZygisk."
       }
     },
     "actions": {
