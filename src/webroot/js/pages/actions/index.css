@@ -119,8 +119,7 @@ input:checked + .slider {
 
 /* INFO: Keep the toggle list comfortably wide and centered on tablets/desktops */
 @media (min-width: 820px) {
-  #actions_content .panel,
-  .panel {
+  .panel:not(.tw_home) {
     max-width: 920px;
     margin-left: auto;
     margin-right: auto;

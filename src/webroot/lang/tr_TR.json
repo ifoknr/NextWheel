@@ -36,7 +36,7 @@
         }
       },
       "dash": {
-        "updated": "Updated just now",
+        "updated": "Updated at %s",
         "heroActive": "%s of %s protections active",
         "device": "Device",
         "copy": "Copy",

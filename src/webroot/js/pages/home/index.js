@@ -180,6 +180,8 @@ async function refreshDashboard() {
   if (ringIc) ringIc.innerHTML = RING[ring].svg
   if (stateEl) stateEl.innerHTML = esc(title)
   if (subEl) subEl.textContent = sub
+  const updatedEl = document.getElementById('tw_updated')
+  if (updatedEl) updatedEl.textContent = strings.dash.updated.replace('%s', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
   if (chipsEl) chipsEl.innerHTML =
     `<span class="tw_chip v">${esc(twEnv.version)}</span>` +
     `<span class="tw_chip">${esc(twEnv.rootImpl)}</span>` +
