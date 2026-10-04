@@ -24,8 +24,15 @@
 
   /* Locked Color */
   --lock: #fff;
-  /* INFO: Roboto for Latin text, Noto Kufi Arabic for Arabic. Both are bundled in
-            fonts/ (see fonts/fonts.css), as the WebUI runs offline in the root manager. */
+  /* INFO: Orbitron for English text, Roboto for Cyrillic, Noto Kufi Arabic for Arabic. All
+            are bundled in fonts/ (see fonts/fonts.css), as the WebUI runs offline in the
+            root manager. */
+  --font-family: 'Orbitron', 'Roboto', 'Noto Kufi Arabic', sans-serif;
+}
+
+/* INFO: Orbitron has no glyphs for some Polish, Turkish and Vietnamese letters, which
+           would make words mix two fonts. pageLoader.js sets data-font for those languages. */
+:root[data-font="roboto"] {
   --font-family: 'Roboto', 'Noto Kufi Arabic', sans-serif;
 }
 
