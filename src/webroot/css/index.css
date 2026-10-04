@@ -30,18 +30,6 @@
   --font-family: 'Orbitron', 'Roboto', 'Noto Kufi Arabic', sans-serif;
 }
 
-/* INFO: The layout is sized in phone CSS pixels, which look tiny on a 10-15" tablet. Zoom
-           the whole UI (text, icons, toggles and navbar together) by the screen's short
-           side, so portrait and landscape match and phones, even in landscape, stay at 1.
-           Breakpoints below still see the real viewport, so tablets get more columns too. */
-@media (min-width: 600px) and (min-height: 600px) {
-  :root { zoom: 1.2; }
-}
-
-@media (min-width: 800px) and (min-height: 800px) {
-  :root { zoom: 1.4; }
-}
-
 /* INFO: Orbitron has no glyphs for some Polish, Turkish and Vietnamese letters, which
            would make words mix two fonts. pageLoader.js sets data-font for those languages. */
 :root[data-font="roboto"] {
