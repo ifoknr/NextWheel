@@ -21,11 +21,9 @@
 #include "utils.h"
 
 bool str_starts_with(const char *str, const char *needle) {
-  size_t needle_len = strlen(needle);
-
-  if (needle_len > strlen(str)) return false;
-
-  return strncmp(str, needle, needle_len) == 0;
+  /* INFO: strncmp stops at str's NUL, so a str shorter than needle compares
+             unequal without walking the whole string first. */
+  return strncmp(str, needle, strlen(needle)) == 0;
 }
 
 bool str_ends_with(const char *str, const char *needle) {
@@ -37,20 +35,8 @@ bool str_ends_with(const char *str, const char *needle) {
   return strncmp(str + str_len - needle_len, needle, needle_len) == 0;
 }
 
-/* INFO: Comparison without able to side channel attack */
 bool str_equal(const char *str1, const char *str2) {
-  bool is_equal = true;
-
-  if (strlen(str1) != strlen(str2)) return false;
-
-  while (*str1 != '\0' && *str2 != '\0') {
-    if (*str1 != *str2) is_equal = false;
-
-    str1++;
-    str2++;
-  }
-
-  return is_equal;
+  return strcmp(str1, str2) == 0;
 }
 
 
