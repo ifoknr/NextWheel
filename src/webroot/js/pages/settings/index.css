@@ -84,3 +84,19 @@ input:checked + .slider {
   width: 0;
   height: 0;
 }
+
+/* INFO: Tappable developer names in the credit card. */
+.tw_credit {
+  cursor: pointer;
+  color: var(--button-enabled);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tw_credit_url {
+  opacity: 0.75;
+  font-size: 0.9em;
+  margin-inline-start: 6px;
+  unicode-bidi: isolate;
+  direction: ltr;
+}

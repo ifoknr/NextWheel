@@ -53,11 +53,11 @@ async function _readStateFlags() {
   return flags
 }
 
-/* INFO: Treat Wheel only runs inside apps that NextZygisk/ReZygisk inject into. If the
+/* INFO: NextWheel only runs inside apps that NextZygisk/ReZygisk inject into. If the
            Zygisk monitor, daemon or Zygote injection stops, new apps are left unhidden
            while the last status file still reads "hiding", so ask the provider directly
            through the state.json it publishes. NextZygisk can also be told to skip the
-           root unmount, which leaves the "clean" namespace Treat Wheel requests mounted. */
+           root unmount, which leaves the "clean" namespace NextWheel requests mounted. */
 async function _readZygiskHealth() {
   const health = { down: false, reason: '', umountOff: false }
 
@@ -303,7 +303,7 @@ export async function load() {
 
   const copy = document.getElementById('tw_copy')
   if (copy) copy.addEventListener('click', async () => {
-    const txt = `Treat Wheel ${twEnv.version}\nRoot: ${twEnv.rootImpl}\nAndroid: ${twEnv.device.android}\nArch: ${twEnv.device.arch}`
+    const txt = `NextWheel ${twEnv.version}\nRoot: ${twEnv.rootImpl}\nAndroid: ${twEnv.device.android}\nArch: ${twEnv.device.arch}`
     try { await navigator.clipboard.writeText(txt); toast((strings && strings.dash && strings.dash.copied) || 'Copied') }
     catch (e) { toast(txt) }
   })

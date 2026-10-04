@@ -48,17 +48,17 @@
         "root": "Root",
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
-        "crashedDesc": "Treat Wheel crashed while hiding",
+        "crashedDesc": "NextWheel crashed while hiding",
         "unknownDesc": "Could not read module status",
-        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
-        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so NextWheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps NextWheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {
       "title": "Hành động",
       "ignoreMode": {
         "title": "Ngừng ẩn tất cả",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel tạm thời bị vô hiệu hóa. Tùy chọn này có thể được kích hoạt mà không cần khởi động lại, nhưng khi kích hoạt, tất cả các tùy chọn ẩn sẽ trở nên vô dụng cho đến khi bị vô hiệu hóa."
+        "description": "Tùy chọn này sẽ khiến NextWheel tạm thời bị vô hiệu hóa. Tùy chọn này có thể được kích hoạt mà không cần khởi động lại, nhưng khi kích hoạt, tất cả các tùy chọn ẩn sẽ trở nên vô dụng cho đến khi bị vô hiệu hóa."
       },
       "flags": {
         "experimental": "THỬ NGHIỆM",
@@ -66,39 +66,39 @@
       },
       "propSpoofing": {
         "title": "Vô hiệu hoá khả năng làm giả prop",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel dừng việc làm giả các prop trong hệ thống ROM tùy chỉnh. Tùy chọn này yêu cầu khởi động lại thiết bị để hoạt động."
+        "description": "Tùy chọn này sẽ khiến NextWheel dừng việc làm giả các prop trong hệ thống ROM tùy chỉnh. Tùy chọn này yêu cầu khởi động lại thiết bị để hoạt động."
       },
       "gsiTraceHiding": {
         "title": "Vô hiệu hóa ẩn dấu vết GSI",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel ngừng ẩn các dấu vết của GSI."
+        "description": "Tùy chọn này sẽ khiến NextWheel ngừng ẩn các dấu vết của GSI."
       },
       "zygoteMountInfoLeakFixing": {
         "title": "Vô hiệu hóa sửa lỗi rò rỉ thông tin mount của Zygote",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel ngừng sửa lỗi, đưa thông tin mount rỏ rì do Zygote tạo ra trở về trạng thái như mong đợi như hệ thống chưa root. Yêu cầu Android 11 trở lên."
+        "description": "Tùy chọn này sẽ khiến NextWheel ngừng sửa lỗi, đưa thông tin mount rỏ rì do Zygote tạo ra trở về trạng thái như mong đợi như hệ thống chưa root. Yêu cầu Android 11 trở lên."
       },
       "mapsHiding": {
         "title": "Vô hiệu hóa ẩn các maps",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel ngừng ẩn các mapping đáng ngờ. Loại ẩn này không hiệu quả, nhưng nó giúp vượt qua một số loại phát hiện root."
+        "description": "Tùy chọn này sẽ khiến NextWheel ngừng ẩn các mapping đáng ngờ. Loại ẩn này không hiệu quả, nhưng nó giúp vượt qua một số loại phát hiện root."
       },
       "ReVancedModuleMountsHiding": {
         "title": "Vô hiệu hóa ẩn các mount của module ReVanced",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel ngừng ẩn các mount mà mô-đun ReVanced tạo ra trên global. Mô-đun ReVanced cần phải có hỗ trợ Treat Wheel để thực hiện umount."
+        "description": "Tùy chọn này sẽ khiến NextWheel ngừng ẩn các mount mà mô-đun ReVanced tạo ra trên global. Mô-đun ReVanced cần phải có hỗ trợ NextWheel để thực hiện umount."
       },
       "customFontLoading": {
         "title": "Tắt phông chữ tùy chọn của hệ thống",
-        "description": " Tùy chọn này sẽ khiến Treat Wheel ngừng sử dụng phông chữ tùy chỉnh từ hệ thống."
+        "description": " Tùy chọn này sẽ khiến NextWheel ngừng sử dụng phông chữ tùy chỉnh từ hệ thống."
       },
       "denylistLogicInversion": {
         "title": "Tắt logic đảo ngược của danh sách từ chối (denylist)",
-        "description": "Tùy chọn này sẽ khiến Treat Wheel ngừng đảo ngược DenyList, do đó các ứng dụng trong DenyList sẽ bị ẩn root, còn các ứng dụng bên ngoài sẽ không bị ẩn. Tương tự như SuList của Magisk Kitsune khi tắt nút bật/tắt này."
+        "description": "Tùy chọn này sẽ khiến NextWheel ngừng đảo ngược DenyList, do đó các ứng dụng trong DenyList sẽ bị ẩn root, còn các ứng dụng bên ngoài sẽ không bị ẩn. Tương tự như SuList của Magisk Kitsune khi tắt nút bật/tắt này."
       },
       "moduleLoadingTracesHiding": {
         "title": "Vô hiệu hoá ẩn dấu vết cho mô đun",
-        "description": "Lựa chọn này sẽ khiến Treat Wheel dừng việc ẩn dấu vết của một số mô đun khi đang chạy."
+        "description": "Lựa chọn này sẽ khiến NextWheel dừng việc ẩn dấu vết của một số mô đun khi đang chạy."
       },
       "fridaTracesHiding": {
         "title": "Vô hiệu hoá ẩn dấu vết của Frida",
-        "description": "Lựa chọn này sẽ làm Treat Wheel dừng việc ẩn dấu vết injection được tạo ra bởi Frida."
+        "description": "Lựa chọn này sẽ làm NextWheel dừng việc ẩn dấu vết injection được tạo ra bởi Frida."
       }
     },
     "settings": {
@@ -113,7 +113,8 @@
       },
       "moduleDevelopers": "Nhà phát triển Module",
       "WebUIDevelopers": "Nhà phát triển WebUI",
-      "moduleLicense": "Giấy phép Module"
+      "moduleLicense": "Giấy phép Module",
+      "basedOn": "Dựa trên Treat Wheel của"
     }
   },
   "globals": {

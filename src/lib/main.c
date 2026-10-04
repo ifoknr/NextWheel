@@ -119,18 +119,18 @@ void preSpecialize(const char *process_name) {
   LOGI("Checking if module is set to be ignoring.");
 
   if (read_loop(cfd, &g_state, sizeof(g_state)) == -1) {
-    LOGI("Failed to read state, requested to dlclose Treat Wheel.");
+    LOGI("Failed to read state, requested to dlclose NextWheel.");
 
     g_state.is_ignoring = true;
 
     return;
   }
 
-  /* INFO: Ignore everyone and everything will make Treat Wheel completely disappear and behave like
+  /* INFO: Ignore everyone and everything will make NextWheel completely disappear and behave like
               it never existed.
   */
   if (g_state.is_ignoring) {
-    LOGI("Module is set to be ignoring, requested to dlclose Treat Wheel.");
+    LOGI("Module is set to be ignoring, requested to dlclose NextWheel.");
 
     return;
   }
@@ -182,7 +182,7 @@ void preAppSpecialize(void *mod_data, struct AppSpecializeArgs *args) {
   preSpecialize(process);
   (*tw_env)->ReleaseStringUTFChars(tw_env, *args->nice_name, process);
 
-  LOGD("Now setting custom unmap hook to hide Treat Wheel's library");
+  LOGD("Now setting custom unmap hook to hide NextWheel's library");
   api_table->pltHookRegister(rz_dev, rz_ino, "munmap", (void *)my_munmap, NULL);
   api_table->pltHookCommit();
 
@@ -221,7 +221,7 @@ void preServerSpecialize(void *mod_data, struct ServerSpecializeArgs *args) {
 
   close(cfd);
 
-  LOGD("Successfully initialized Treat Wheel daemon.");
+  LOGD("Successfully initialized NextWheel daemon.");
 }
 
 void postAppSpecialize(void *mod_data, const struct AppSpecializeArgs *args) {
@@ -257,7 +257,7 @@ __attribute__((constructor)) static void tw_initialization(void) {
   }
 
   if (rz_dev == 0 || rz_ino == 0) {
-    LOGE("Failed to find ReZygisk's library in maps, requested to dlclose Treat Wheel.");
+    LOGE("Failed to find ReZygisk's library in maps, requested to dlclose NextWheel.");
 
     g_state.is_ignoring = true;
 
@@ -268,7 +268,7 @@ __attribute__((constructor)) static void tw_initialization(void) {
 
   tw_info = tw_get_mem_info(maps);
 
-  LOGD("Treat Wheel memory region: start=%p, size=%zu", (void *)tw_info.start, tw_info.size);
+  LOGD("NextWheel memory region: start=%p, size=%zu", (void *)tw_info.start, tw_info.size);
 }
 
 void zygisk_module_entry(struct api_table *table, JNIEnv *env) {
@@ -578,7 +578,7 @@ void zygisk_companion_entry(int module_fd) {
       }
 
       if (has_crashed) {
-        LOGW("Treat Wheel has crashed, refusing to set new state.");
+        LOGW("NextWheel has crashed, refusing to set new state.");
 
         continue;
       }
@@ -604,7 +604,7 @@ void zygisk_companion_entry(int module_fd) {
       pthread_mutex_unlock(&process_states_lock);
 
       if (has_crashed) {
-        LOGE("Treat Wheel has crashed, setting proper state.");
+        LOGE("NextWheel has crashed, setting proper state.");
 
         pthread_mutex_lock(&process_states_lock);
 
@@ -642,7 +642,7 @@ void zygisk_companion_entry(int module_fd) {
         for (; i < process_states_size; i++) {
           if (process_states[i].pid != ppid) continue;
 
-          LOGD("Found process now finalized in Treat Wheel execution with pid %d, removing. Now, %zu process being tracked.", ppid, process_states_size - 1);
+          LOGD("Found process now finalized in NextWheel execution with pid %d, removing. Now, %zu process being tracked.", ppid, process_states_size - 1);
 
           found = &process_states[i];
 
@@ -713,7 +713,7 @@ void zygisk_companion_entry(int module_fd) {
 
           process_states[i].performed_hiding = true;
 
-          LOGD("Updated state for process with pid %d in Treat Wheel execution.", ppid);
+          LOGD("Updated state for process with pid %d in NextWheel execution.", ppid);
 
           break;
         }
@@ -739,7 +739,7 @@ void zygisk_companion_entry(int module_fd) {
         process_states[process_states_size].opened_at = mono_sec_now();
         process_states_size++;
 
-        LOGD("Started now Treat Wheel execution for process with pid %d. Now, %zu processes are being tracked.", ppid, process_states_size);
+        LOGD("Started now NextWheel execution for process with pid %d. Now, %zu processes are being tracked.", ppid, process_states_size);
 
         pthread_mutex_unlock(&process_states_lock);
       }

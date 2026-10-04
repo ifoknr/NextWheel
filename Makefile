@@ -82,8 +82,8 @@ build:
 		sed -i 's/ display: none;//g' $(BUILD_PATH)/webroot/js/pages/home/index.html; \
 	fi
 
-	@rm -rf ../build/TreatWheel.zip
-	@(cd $(BUILD_PATH) && zip -r ../TreatWheel.zip .) > /dev/null
+	@rm -rf ../build/NextWheel.zip
+	@(cd $(BUILD_PATH) && zip -r ../NextWheel.zip .) > /dev/null
 
 compile_arch:
 	@mkdir -p $(ZYGISK_PATH)/$(ARCH) > /dev/null
@@ -100,7 +100,7 @@ clean:
 	@rm -rf $(BUILD_PATH)/cmd
 	@rm -rf $(BUILD_PATH)/zygisk
 	@rm -rf $(BUILD_PATH)/webroot
-	@rm -rf ../build/TreatWheel.zip > /dev/null
+	@rm -rf ../build/NextWheel.zip > /dev/null
 
 analyze:
 	@for arch in $(ARCHS); do              \
@@ -113,11 +113,11 @@ analyze_arch:
 	@$(CLANG) --target=$(TARGET_$(ARCH)) -DIS_CMD $(CFILES_CMD) $(CFLAGS) -Isrc/system_properties/include -DUTILS_NO_SSL -Wno-unused-command-line-argument --analyze -Xanalyzer -analyzer-output=text
 
 installModule: build
-	$(ADB_PUSH) build/TreatWheel.zip /data/local/tmp
-	@$(ADB_SHELL)su -M -c "magisk --install-module /data/local/tmp/TreatWheel.zip 2&>/dev/null"|| \
-	$(ADB_SHELL)su -c "ksud module install /data/local/tmp/TreatWheel.zip 2&>/dev/null"||        \
-	$(ADB_SHELL)su -c "apd module install /data/local/tmp/TreatWheel.zip 2&>/dev/null"           \
-	&& $(ADB_SHELL)su -c rm /data/local/tmp/TreatWheel.zip                                       \
+	$(ADB_PUSH) build/NextWheel.zip /data/local/tmp
+	@$(ADB_SHELL)su -M -c "magisk --install-module /data/local/tmp/NextWheel.zip 2&>/dev/null"|| \
+	$(ADB_SHELL)su -c "ksud module install /data/local/tmp/NextWheel.zip 2&>/dev/null"||        \
+	$(ADB_SHELL)su -c "apd module install /data/local/tmp/NextWheel.zip 2&>/dev/null"           \
+	&& $(ADB_SHELL)su -c rm /data/local/tmp/NextWheel.zip                                       \
 	|| echo "[X] Could not find valid CLI to install the module"
 
 installModuleAndReboot: installModule

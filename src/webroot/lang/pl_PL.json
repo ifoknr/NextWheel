@@ -48,10 +48,10 @@
         "root": "Root",
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
-        "crashedDesc": "Treat Wheel crashed while hiding",
+        "crashedDesc": "NextWheel crashed while hiding",
         "unknownDesc": "Could not read module status",
-        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
-        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so NextWheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps NextWheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {
@@ -62,43 +62,43 @@
       },
       "ignoreMode": {
         "title": "Ignoruj wszystko i wszystkich",
-        "description": "Ta opcja spowoduje tymczasowe wyłączenie Treat Wheel. Można włączyć ponownie tę opcje bez reboota, ale włączenie jej wyłącza działanie wszystkich opcji ukrywania do czasu ponownego wyłączenia tej opcji."
+        "description": "Ta opcja spowoduje tymczasowe wyłączenie NextWheel. Można włączyć ponownie tę opcje bez reboota, ale włączenie jej wyłącza działanie wszystkich opcji ukrywania do czasu ponownego wyłączenia tej opcji."
       },
       "propSpoofing": {
         "title": "Wyłącz sproofowanie propów",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie sproofować wrażliwe i powiązane z custom ROMami propy. Reboot jest wymagany, aby efekt tego przełącznika zadziałał."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie sproofować wrażliwe i powiązane z custom ROMami propy. Reboot jest wymagany, aby efekt tego przełącznika zadziałał."
       },
       "gsiTraceHiding": {
         "title": "Wyłącz ukrywanie śladów GSI",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie ukrywać ślady GSI."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie ukrywać ślady GSI."
       },
       "zygoteMountInfoLeakFixing": {
         "title": "Wyłącz naprawianie wycieku mountinfo z Zygoty",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie naprawiać wyciek mountinfo z Zygoty, które tworzone jest tak jak to oczekiwane w niezrootowanych systemach. Wymaga Androida 11 lub wyższego."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie naprawiać wyciek mountinfo z Zygoty, które tworzone jest tak jak to oczekiwane w niezrootowanych systemach. Wymaga Androida 11 lub wyższego."
       },
       "mapsHiding": {
         "title": "Wyłącz ukrywanie mapowań",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie ukrywać podejrzane mapowania. Ten typ ukrywania jest nieskuteczny, ale pomaga zdać trochę wykryć z tym związanych."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie ukrywać podejrzane mapowania. Ten typ ukrywania jest nieskuteczny, ale pomaga zdać trochę wykryć z tym związanych."
       },
       "ReVancedModuleMountsHiding": {
         "title": "Wyłącz ukrywanie montowań modułów ReVanced",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie ukrywać montowania modułów ReVanced tworzonych globalnie. Moduły ReVanced muszą posiadać specjalne wsparcie, aby Treat Wheel mógł je odmontować."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie ukrywać montowania modułów ReVanced tworzonych globalnie. Moduły ReVanced muszą posiadać specjalne wsparcie, aby NextWheel mógł je odmontować."
       },
       "customFontLoading": {
         "title": "Wyłącz ładowanie customowych czcionek",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie ładować customowe czcionki z systemu."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie ładować customowe czcionki z systemu."
       },
       "denylistLogicInversion": {
         "title": "Wyłącz odwróconą logikę czarnej listy",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie odwracać czarną listę, czyli aplikacje na czarnej liście będą miały ukrytego roota, a te niebędące na tej liście będą go posiadały nieukrytego. Podobnie działa to, jak opcja SuList w Magisk Kitsune, kiedy ten przełącznik jest wyłączony."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie odwracać czarną listę, czyli aplikacje na czarnej liście będą miały ukrytego roota, a te niebędące na tej liście będą go posiadały nieukrytego. Podobnie działa to, jak opcja SuList w Magisk Kitsune, kiedy ten przełącznik jest wyłączony."
       },
       "moduleLoadingTracesHiding": {
         "title": "Wyłącz ukrywanie śladów ładowanie modułów",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie ukrywać ślady generowane przez niektóre moduły w trakcie ich ładowania."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie ukrywać ślady generowane przez niektóre moduły w trakcie ich ładowania."
       },
       "fridaTracesHiding": {
         "title": "Wyłącz ukrywanie śladów Frida",
-        "description": "Ta opcja spowoduje, że Treat Wheel przestanie ukrywać ślady wstrzyknięć wygenerowanych przez Frida."
+        "description": "Ta opcja spowoduje, że NextWheel przestanie ukrywać ślady wstrzyknięć wygenerowanych przez Frida."
       }
     },
     "settings": {
@@ -113,7 +113,8 @@
       },
       "moduleDevelopers": "Deweloper(zy) modułu",
       "WebUIDevelopers": "Deweloper(zy) WebUI",
-      "moduleLicense": "Licencja modułu"
+      "moduleLicense": "Licencja modułu",
+      "basedOn": "Oparty na Treat Wheel autorstwa"
     }
   },
   "globals": {

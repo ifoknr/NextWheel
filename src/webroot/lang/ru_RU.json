@@ -48,10 +48,10 @@
         "root": "Root",
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
-        "crashedDesc": "Treat Wheel crashed while hiding",
+        "crashedDesc": "NextWheel crashed while hiding",
         "unknownDesc": "Could not read module status",
-        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
-        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so NextWheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps NextWheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {
@@ -62,43 +62,43 @@
       },
       "ignoreMode": {
         "title": "Игнорировать всех и всё",
-        "description": "Эта опция временно отключит Treat Wheel. Его можно включить снова без перезагрузки, но с этим параметром все параметры скрытия станут бесполезными, пока данный параметр не будет отключен."
+        "description": "Эта опция временно отключит NextWheel. Его можно включить снова без перезагрузки, но с этим параметром все параметры скрытия станут бесполезными, пока данный параметр не будет отключен."
       },
       "propSpoofing": {
         "title": "Отключить подмену подозрительных системных настроек",
-        "description": "Эта опция заставит Treat Wheel прекратить подмену подозрительных настроек системы. Для вступления изменений в силу потребуется перезагрузка."
+        "description": "Эта опция заставит NextWheel прекратить подмену подозрительных настроек системы. Для вступления изменений в силу потребуется перезагрузка."
       },
       "gsiTraceHiding": {
         "title": "Отключить скрытие следов GSI",
-        "description": "Эта опция заставит Treat Wheel прекратить скрывать следы GSI."
+        "description": "Эта опция заставит NextWheel прекратить скрывать следы GSI."
       },
       "zygoteMountInfoLeakFixing": {
         "title": "Отключить исправления утечки mountinfo в Zygote",
-        "description": "Эта опция заставит Treat Wheel прекратить исправление утечек mountinfo, то есть обеспечить работу как в системах без root-прав, оставляя утечки mountinfo, создаваемые Zygote. Требуется Android 11 или выше."
+        "description": "Эта опция заставит NextWheel прекратить исправление утечек mountinfo, то есть обеспечить работу как в системах без root-прав, оставляя утечки mountinfo, создаваемые Zygote. Требуется Android 11 или выше."
       },
       "mapsHiding": {
         "title": "Отключить скрытие записей в maps",
-        "description": "Эта опция заставит Treat Wheel перестать скрывать подозрительные записи в maps. Такое скрытие бесполезно, но помогает обойти некоторые системы обнаружения."
+        "description": "Эта опция заставит NextWheel перестать скрывать подозрительные записи в maps. Такое скрытие бесполезно, но помогает обойти некоторые системы обнаружения."
       },
       "ReVancedModuleMountsHiding": {
         "title": "Отключить скрытие монтирования модулей ReVanced",
-        "description": "Эта опция заставит Treat Wheel перестать скрывать точки монтирования, создаваемые модулями ReVanced глобально. Для того чтобы модули ReVanced могли быть размонтированы, они должны поддерживать Treat Wheel."
+        "description": "Эта опция заставит NextWheel перестать скрывать точки монтирования, создаваемые модулями ReVanced глобально. Для того чтобы модули ReVanced могли быть размонтированы, они должны поддерживать NextWheel."
       },
       "customFontLoading": {
         "title": "Отключить загрузку пользовательских шрифтов",
-        "description": "Эта опция заставит Treat Wheel прекратить загрузку пользовательских шрифтов из системы."
+        "description": "Эта опция заставит NextWheel прекратить загрузку пользовательских шрифтов из системы."
       },
       "denylistLogicInversion": {
         "title": "Отключить инверсию DenyList",
-        "description": "Эта опция заставит Treat Wheel прекратить инвертировать DenyList, так что приложения, находящиеся в DenyList, будут иметь скрытые права root, а приложения, находящиеся в другом списке, — нет. Аналогично SuList в Magisk Kitsune, когда эта опция отключена."
+        "description": "Эта опция заставит NextWheel прекратить инвертировать DenyList, так что приложения, находящиеся в DenyList, будут иметь скрытые права root, а приложения, находящиеся в другом списке, — нет. Аналогично SuList в Magisk Kitsune, когда эта опция отключена."
       },
       "moduleLoadingTracesHiding": {
         "title": "Отключить скрытие следов загрузки модулей",
-        "description": "Эта опция заставит Treat Wheel прекратить скрывать следы, создаваемые некоторыми модулями во время их загрузки."
+        "description": "Эта опция заставит NextWheel прекратить скрывать следы, создаваемые некоторыми модулями во время их загрузки."
       },
       "fridaTracesHiding": {
         "title": "Отключить скрытие следов Frida",
-        "description": "Эта опция заставит Treat Wheel прекратить скрывать следы инъекций, создаваемые Frida."
+        "description": "Эта опция заставит NextWheel прекратить скрывать следы инъекций, создаваемые Frida."
       }
     },
     "settings": {
@@ -113,7 +113,8 @@
       },
       "moduleDevelopers": "Разработчик(и) модуля",
       "WebUIDevelopers": "Разработчик(и) WebUI",
-      "moduleLicense": "Лицензия модуля"
+      "moduleLicense": "Лицензия модуля",
+      "basedOn": "Основан на Treat Wheel от"
     }
   },
   "globals": {

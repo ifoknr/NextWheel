@@ -48,10 +48,10 @@
         "root": "Root",
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
-        "crashedDesc": "Treat Wheel crashed while hiding",
+        "crashedDesc": "NextWheel crashed while hiding",
         "unknownDesc": "Could not read module status",
-        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
-        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so NextWheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps NextWheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {
@@ -62,43 +62,43 @@
       },
       "ignoreMode": {
         "title": "Herkesi ve her şeyi görmezden gel",
-        "description": "Bu özellik Treat Wheel modülünü geçici olarak etkisizleştirecek. Modül cihazı yeniden başlatmadan tekrar etkinleştirilebilir, ancak bu özellik kapatılana kadar aşağıda yer alan bütün özellikler işlevsiz kalacak."
+        "description": "Bu özellik NextWheel modülünü geçici olarak etkisizleştirecek. Modül cihazı yeniden başlatmadan tekrar etkinleştirilebilir, ancak bu özellik kapatılana kadar aşağıda yer alan bütün özellikler işlevsiz kalacak."
       },
       "propSpoofing": {
         "title": "Prop kandırmasını etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün kişisel ROM'lara yönelik özellikleri gizlemesini devre dışı bırakır. Bu seçeneğin işlevsel olabilmesi için yeniden başlatma gerekir."
+        "description": "Bu özellik NextWheel modülünün kişisel ROM'lara yönelik özellikleri gizlemesini devre dışı bırakır. Bu seçeneğin işlevsel olabilmesi için yeniden başlatma gerekir."
       },
       "gsiTraceHiding": {
         "title": "GSI izlerini gizlemeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün GSI izlerini gizlemesini durduracak."
+        "description": "Bu özellik NextWheel modülünün GSI izlerini gizlemesini durduracak."
       },
       "zygoteMountInfoLeakFixing": {
         "title": "Zygote mountinfo sızıntısını düzeltmeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün Zygote'un bıraktığı izleri -root erişimine sahip olmayan sistemler gibi görünecek şekilde- gizlemesini durduracak. Android 11 ya da daha üstü gerekir."
+        "description": "Bu özellik NextWheel modülünün Zygote'un bıraktığı izleri -root erişimine sahip olmayan sistemler gibi görünecek şekilde- gizlemesini durduracak. Android 11 ya da daha üstü gerekir."
       },
       "mapsHiding": {
         "title": "Bellek haritası gizlemeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün şüpheli bellek haritalarını gizlemesini durduracak. Bu tip bir gizleme kusurludur ancak bazı denetlemeleri aşmaya yardımcı olur."
+        "description": "Bu özellik NextWheel modülünün şüpheli bellek haritalarını gizlemesini durduracak. Bu tip bir gizleme kusurludur ancak bazı denetlemeleri aşmaya yardımcı olur."
       },
       "ReVancedModuleMountsHiding": {
         "title": "ReVanced modül bağlantılarını gizlemeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün ReVanced modüllerinin sistem geneline bıraktığı bağlantıları gizlemesini durduracak. ReVanced modülleri bağlantıların gizlenmesi için Treat Wheel modülüne özellikle destek vermelidir, aksi durumda bu gizleme özelliği etkisizdir."
+        "description": "Bu özellik NextWheel modülünün ReVanced modüllerinin sistem geneline bıraktığı bağlantıları gizlemesini durduracak. ReVanced modülleri bağlantıların gizlenmesi için NextWheel modülüne özellikle destek vermelidir, aksi durumda bu gizleme özelliği etkisizdir."
       },
       "customFontLoading": {
         "title": "Kişisel yazı tipi yüklemeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün sistemden kişisel yazı tipi yüklemesini durduracak."
+        "description": "Bu özellik NextWheel modülünün sistemden kişisel yazı tipi yüklemesini durduracak."
       },
       "denylistLogicInversion": {
         "title": "Gizleme listesi mantığını tersine çevirmeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün gizleme listesini işleme durumunu tersine çevirecek. Bu sayede gizleme listesindeki uygulamalarda root erişimi gizlenirken diğerlerinde gizlenmez. Bu özellik devre dışıyken Magisk Kitsune'nin SuList özelliğine benzer şekilde çalışır."
+        "description": "Bu özellik NextWheel modülünün gizleme listesini işleme durumunu tersine çevirecek. Bu sayede gizleme listesindeki uygulamalarda root erişimi gizlenirken diğerlerinde gizlenmez. Bu özellik devre dışıyken Magisk Kitsune'nin SuList özelliğine benzer şekilde çalışır."
       },
       "moduleLoadingTracesHiding": {
         "title": "Modüller yüklenirken oluşan izleri gizlemeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün bazı modüllerin yüklenirken oluşturdukları izleri gizlemesini durduracak."
+        "description": "Bu özellik NextWheel modülünün bazı modüllerin yüklenirken oluşturdukları izleri gizlemesini durduracak."
       },
       "fridaTracesHiding": {
         "title": "Frida izlerini gizlemeyi etkisizleştir",
-        "description": "Bu özellik Treat Wheel modülünün Frida tarafından oluşturulan enjeksiyon izlerini gizlemesini durduracak."
+        "description": "Bu özellik NextWheel modülünün Frida tarafından oluşturulan enjeksiyon izlerini gizlemesini durduracak."
       }
     },
     "settings": {
@@ -113,7 +113,8 @@
       },
       "moduleDevelopers": "Modül Geliştiricileri",
       "WebUIDevelopers": "WebUI Geliştiricileri",
-      "moduleLicense": "Modül Lisansı"
+      "moduleLicense": "Modül Lisansı",
+      "basedOn": "Treat Wheel tabanlı, geliştiren"
     }
   },
   "globals": {

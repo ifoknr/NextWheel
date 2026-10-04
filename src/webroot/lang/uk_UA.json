@@ -48,10 +48,10 @@
         "root": "Root",
         "disabledTitle": "%s protections disabled",
         "incompatibleTitle": "Incompatible modules detected",
-        "crashedDesc": "Treat Wheel crashed while hiding",
+        "crashedDesc": "NextWheel crashed while hiding",
         "unknownDesc": "Could not read module status",
-        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so Treat Wheel is not hiding anything in newly opened apps",
-        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps Treat Wheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
+        "zygiskDownDesc": "NextZygisk/ReZygisk is not injecting into apps, so NextWheel is not hiding anything in newly opened apps",
+        "umountOffDesc": "Root unmount is turned off in NextZygisk, so the apps NextWheel hides root from can still see root mounts. Turn it back on in the NextZygisk WebUI."
       }
     },
     "actions": {
@@ -62,43 +62,43 @@
       },
       "ignoreMode": {
         "title": "Ігнорувати всіх і все",
-        "description": "Ця опція тимчасово вимкне Treat Wheel. Опцію можна повторно ввімкнути без перезавантаження, але її ввімкнення зробить усі опції приховування недійсними, доки їх не вимкнуть."
+        "description": "Ця опція тимчасово вимкне NextWheel. Опцію можна повторно ввімкнути без перезавантаження, але її ввімкнення зробить усі опції приховування недійсними, доки їх не вимкнуть."
       },
       "propSpoofing": {
         "title": "Вимкнути підробку prop-параметрів",
-        "description": "Ця опція дозволить Treat Wheel припинити підробку конфіденційних параметрів і параметрів, пов’язаних із кастомними прошивками. Щоб ця зміна набула чинності, потрібно перезавантажити пристрій."
+        "description": "Ця опція дозволить NextWheel припинити підробку конфіденційних параметрів і параметрів, пов’язаних із кастомними прошивками. Щоб ця зміна набула чинності, потрібно перезавантажити пристрій."
       },
       "gsiTraceHiding": {
         "title": "Вимкнути приховування слідів GSI",
-        "description": "Змушує Treat Wheel припинити приховувати сліди GSI."
+        "description": "Змушує NextWheel припинити приховувати сліди GSI."
       },
       "zygoteMountInfoLeakFixing": {
         "title": "Вимкнути виправлення витоку даних mountinfo від Zygote",
-        "description": "Ця опція змусить Treat Wheel припинити виправлення витоку даних mountinfo, який створює Zygote, тобто забезпечить роботу програми так, як це передбачено в системах без root-доступу. Потрібна версія Android 11 або новіше."
+        "description": "Ця опція змусить NextWheel припинити виправлення витоку даних mountinfo, який створює Zygote, тобто забезпечить роботу програми так, як це передбачено в системах без root-доступу. Потрібна версія Android 11 або новіше."
       },
       "mapsHiding": {
         "title": "Вимкнути приховування записів у maps",
-        "description": "Ця опція змусить Treat Wheel припинити приховувати підозрілі записи у maps. Таке приховування є марним, але допомагає обійти деякі системи виявлення."
+        "description": "Ця опція змусить NextWheel припинити приховувати підозрілі записи у maps. Таке приховування є марним, але допомагає обійти деякі системи виявлення."
       },
       "ReVancedModuleMountsHiding": {
         "title": "Вимкнути приховування монтування ReVanced-модулів",
-        "description": "Ця опція змусить Treat Wheel припинити приховувати монтування, які модулі ReVanced створюють у глобальному контексті. Модулі ReVanced повинні явно підтримувати Treat Wheel, щоб програма могла їх демонтирувати."
+        "description": "Ця опція змусить NextWheel припинити приховувати монтування, які модулі ReVanced створюють у глобальному контексті. Модулі ReVanced повинні явно підтримувати NextWheel, щоб програма могла їх демонтирувати."
       },
       "customFontLoading": {
         "title": "Вимкнути завантаження користувацьких шрифтів",
-        "description": "Ця опція призведе до того, що Treat Wheel перестане завантажувати користувацькі шрифти з системи."
+        "description": "Ця опція призведе до того, що NextWheel перестане завантажувати користувацькі шрифти з системи."
       },
       "denylistLogicInversion": {
         "title": "Вимкнути інверсію логіки DenyList",
-        "description": "Ця опція змусить Treat Wheel припинити інверсію списку DenyList, завдяки чому для застосунків зі списку DenyList права суперкористувача будуть приховані, а для застосункфів, що не входять до цього списку, — ні. Це працює аналогічно до SuList у Magisk Kitsune, коли цей перемикач вимкнено."
+        "description": "Ця опція змусить NextWheel припинити інверсію списку DenyList, завдяки чому для застосунків зі списку DenyList права суперкористувача будуть приховані, а для застосункфів, що не входять до цього списку, — ні. Це працює аналогічно до SuList у Magisk Kitsune, коли цей перемикач вимкнено."
       },
       "moduleLoadingTracesHiding": {
         "title": "Вимкнути приховування слідів про завантаження модулів",
-        "description": "Ця опція змусить Treat Wheel припинити приховувати сліди, що генеруються деякими модулями під час їх завантаження."
+        "description": "Ця опція змусить NextWheel припинити приховувати сліди, що генеруються деякими модулями під час їх завантаження."
       },
       "fridaTracesHiding": {
         "title": "Вимкнути приховування слідів Frida",
-        "description": "Ця опція змусить Treat Wheel припинити приховувати сліди ін'єкцій, що генеруються Frida."
+        "description": "Ця опція змусить NextWheel припинити приховувати сліди ін'єкцій, що генеруються Frida."
       }
     },
     "settings": {
@@ -113,7 +113,8 @@
       },
       "moduleDevelopers": "Розробник(и) модуля",
       "WebUIDevelopers": "Розробник(и) WebUI",
-      "moduleLicense": "Ліцензія модуля"
+      "moduleLicense": "Ліцензія модуля",
+      "basedOn": "Базується на Treat Wheel від"
     }
   },
   "globals": {

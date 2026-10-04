@@ -2,7 +2,7 @@
 SKIPUNZIP=1
 
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
-ui_print "- Installing Treat Wheel $VERSION"
+ui_print "- Installing NextWheel $VERSION"
 
 if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ] && [ "$ARCH" != "x86" ] && [ "$ARCH" != "x64" ]; then
   abort "! Unsupported platform: $ARCH"
@@ -12,23 +12,23 @@ fi
 
 # INFO: Zygisk Assistant and NoHello are not supported. If present, refuse to install
 if [ -d "/data/adb/modules/zygisk_assistant" ] || [ -d "/data/adb/modules_update/zygisk_assistant" ]; then
-  abort "! Zygisk Assistant is outdated and causes detections. Please uninstall it before installing Treat Wheel."
+  abort "! Zygisk Assistant is outdated and causes detections. Please uninstall it before installing NextWheel."
 fi
 
 if [ -d "/data/adb/modules/nohello" ] || [ -d "/data/adb/modules_update/nohello" ]; then
-  abort "! NoHello is outdated and doesn't provide any benefits. Please uninstall it before installing Treat Wheel."
+  abort "! NoHello is outdated and doesn't provide any benefits. Please uninstall it before installing NextWheel."
 fi
 
 REZYGISK_REQUIRED_VERSION=508
 
-# INFO: Treat Wheel won't work in any other Zygisk anyway. Demand ReZygisk.
+# INFO: NextWheel won't work in any other Zygisk anyway. Demand NextZygisk or ReZygisk.
 if [ -d "/data/adb/modules_update/rezygisk" ]; then
   REZYGISK_PATH="/data/adb/modules_update/rezygisk"
 elif [ -d "/data/adb/modules/rezygisk" ]; then
   REZYGISK_PATH="/data/adb/modules/rezygisk"
 else
-  ui_print "- ReZygisk $REZYGISK_REQUIRED_VERSION or higher is required but not found."
-  abort    "- No other Zygisk implementation is supported or works with Treat Wheel."
+  ui_print "- NextZygisk, or ReZygisk $REZYGISK_REQUIRED_VERSION or higher, is required but not found."
+  abort    "- No other Zygisk implementation is supported or works with NextWheel."
 fi
 
 REZYGISK_VERSION=$(grep_prop versionCode $REZYGISK_PATH/module.prop)
@@ -39,7 +39,7 @@ fi
 # INFO: NextZygisk keeps the "rezygisk" module id so it updates ReZygisk in place,
 #         but it renumbers versionCode from a commit count instead of ReZygisk's
 #         upstream scheme, so its versionCode is far below REZYGISK_REQUIRED_VERSION
-#         even though it implements the same Zygisk API (v5) Treat Wheel needs.
+#         even though it implements the same Zygisk API (v5) NextWheel needs.
 #         Detect it by name/author and accept it instead of failing the numeric gate.
 REZYGISK_NAME=$(grep_prop name   $REZYGISK_PATH/module.prop)
 REZYGISK_AUTHOR=$(grep_prop author $REZYGISK_PATH/module.prop)
@@ -184,4 +184,4 @@ if [ ! -f "/data/adb/treat_wheel/defaults_all_enabled" ]; then
   touch "/data/adb/treat_wheel/defaults_all_enabled"
 fi
 
-ui_print "- Welcome to Treat Wheel $VERSION"
+ui_print "- Welcome to NextWheel $VERSION"

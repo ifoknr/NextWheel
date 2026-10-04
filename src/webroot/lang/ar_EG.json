@@ -48,10 +48,10 @@
         "root": "الروت",
         "disabledTitle": "حمايات متوقفة: %s",
         "incompatibleTitle": "تم اكتشاف وحدات غير متوافقة",
-        "crashedDesc": "توقف Treat Wheel بسبب خطأ أثناء الإخفاء",
+        "crashedDesc": "توقف NextWheel بسبب خطأ أثناء الإخفاء",
         "unknownDesc": "تعذّرت قراءة حالة الوحدة",
-        "zygiskDownDesc": "NextZygisk/ReZygisk لا يحقن التطبيقات، لذلك Treat Wheel لا يُخفي شيئًا في التطبيقات التي تُفتح الآن",
-        "umountOffDesc": "فك تركيب الروت متوقف في NextZygisk، لذلك التطبيقات التي يُخفي عنها Treat Wheel الروت ما زالت ترى آثاره. أعد تفعيله من واجهة NextZygisk."
+        "zygiskDownDesc": "NextZygisk/ReZygisk لا يحقن التطبيقات، لذلك NextWheel لا يُخفي شيئًا في التطبيقات التي تُفتح الآن",
+        "umountOffDesc": "فك تركيب الروت متوقف في NextZygisk، لذلك التطبيقات التي يُخفي عنها NextWheel الروت ما زالت ترى آثاره. أعد تفعيله من واجهة NextZygisk."
       }
     },
     "actions": {
@@ -62,43 +62,43 @@
       },
       "ignoreMode": {
         "title": "تجاهل الجميع وكل شيء",
-        "description": "يعطّل هذا الخيار Treat Wheel مؤقتاً. يمكن إعادة تفعيله بدون إعادة تشغيل، لكن تفعيله يوقف كل خيارات الإخفاء حتى تطفئه."
+        "description": "يعطّل هذا الخيار NextWheel مؤقتاً. يمكن إعادة تفعيله بدون إعادة تشغيل، لكن تفعيله يوقف كل خيارات الإخفاء حتى تطفئه."
       },
       "propSpoofing": {
         "title": "إيقاف تزييف الخصائص",
-        "description": "يجعل Treat Wheel يتوقف عن تزييف الخصائص الحساسة والخاصة بالرومات المعدّلة. يحتاج إعادة تشغيل حتى يطبَّق."
+        "description": "يجعل NextWheel يتوقف عن تزييف الخصائص الحساسة والخاصة بالرومات المعدّلة. يحتاج إعادة تشغيل حتى يطبَّق."
       },
       "gsiTraceHiding": {
         "title": "إيقاف إخفاء آثار GSI",
-        "description": "يجعل Treat Wheel يتوقف عن إخفاء آثار GSI."
+        "description": "يجعل NextWheel يتوقف عن إخفاء آثار GSI."
       },
       "zygoteMountInfoLeakFixing": {
         "title": "إيقاف إصلاح تسريب mountinfo في Zygote",
-        "description": "يجعل Treat Wheel يتوقف عن إصلاح تسريب mountinfo الذي يسببه Zygote، أي إرجاعه كما يكون في جهاز بدون روت. يتطلب أندرويد 11 أو أحدث."
+        "description": "يجعل NextWheel يتوقف عن إصلاح تسريب mountinfo الذي يسببه Zygote، أي إرجاعه كما يكون في جهاز بدون روت. يتطلب أندرويد 11 أو أحدث."
       },
       "mapsHiding": {
         "title": "إيقاف إخفاء maps",
-        "description": "يجعل Treat Wheel يتوقف عن إخفاء الخرائط المشبوهة في الذاكرة. هذا النوع من الإخفاء محدود الفائدة، لكنه يساعد على تجاوز بعض أدوات الكشف."
+        "description": "يجعل NextWheel يتوقف عن إخفاء الخرائط المشبوهة في الذاكرة. هذا النوع من الإخفاء محدود الفائدة، لكنه يساعد على تجاوز بعض أدوات الكشف."
       },
       "ReVancedModuleMountsHiding": {
         "title": "إيقاف إخفاء تركيبات وحدات ReVanced",
-        "description": "يجعل Treat Wheel يتوقف عن إخفاء التركيبات التي تنشئها وحدات ReVanced على مستوى النظام. يجب أن تدعم وحدة ReVanced برنامج Treat Wheel صراحةً حتى يلغي تركيباتها."
+        "description": "يجعل NextWheel يتوقف عن إخفاء التركيبات التي تنشئها وحدات ReVanced على مستوى النظام. يجب أن تدعم وحدة ReVanced برنامج NextWheel صراحةً حتى يلغي تركيباتها."
       },
       "customFontLoading": {
         "title": "إيقاف تحميل الخطوط المخصصة",
-        "description": "يجعل Treat Wheel يتوقف عن تحميل الخطوط المخصصة من النظام."
+        "description": "يجعل NextWheel يتوقف عن تحميل الخطوط المخصصة من النظام."
       },
       "denylistLogicInversion": {
         "title": "إيقاف عكس منطق DenyList",
-        "description": "يجعل Treat Wheel يتوقف عن عكس DenyList، فتُخفى صلاحية الروت عن التطبيقات الموجودة في DenyList ولا تُخفى عن غيرها. يشبه SuList في Magisk Kitsune عندما يكون هذا الخيار متوقفاً."
+        "description": "يجعل NextWheel يتوقف عن عكس DenyList، فتُخفى صلاحية الروت عن التطبيقات الموجودة في DenyList ولا تُخفى عن غيرها. يشبه SuList في Magisk Kitsune عندما يكون هذا الخيار متوقفاً."
       },
       "moduleLoadingTracesHiding": {
         "title": "إيقاف إخفاء آثار تحميل الوحدات",
-        "description": "يجعل Treat Wheel يتوقف عن إخفاء الآثار التي تتركها بعض الوحدات أثناء تحميلها."
+        "description": "يجعل NextWheel يتوقف عن إخفاء الآثار التي تتركها بعض الوحدات أثناء تحميلها."
       },
       "fridaTracesHiding": {
         "title": "إيقاف إخفاء آثار Frida",
-        "description": "يجعل Treat Wheel يتوقف عن إخفاء آثار الحقن التي يتركها Frida."
+        "description": "يجعل NextWheel يتوقف عن إخفاء آثار الحقن التي يتركها Frida."
       }
     },
     "settings": {
@@ -113,7 +113,8 @@
       },
       "moduleDevelopers": "مطوّر (مطوّرو) الوحدة",
       "WebUIDevelopers": "مطوّر (مطوّرو) الواجهة",
-      "moduleLicense": "رخصة الوحدة"
+      "moduleLicense": "رخصة الوحدة",
+      "basedOn": "مبني على Treat Wheel من تطوير"
     }
   },
   "globals": {
