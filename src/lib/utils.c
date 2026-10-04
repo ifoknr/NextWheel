@@ -35,8 +35,20 @@ bool str_ends_with(const char *str, const char *needle) {
   return strncmp(str + str_len - needle_len, needle, needle_len) == 0;
 }
 
+/* INFO: Comparison without able to side channel attack */
 bool str_equal(const char *str1, const char *str2) {
-  return strcmp(str1, str2) == 0;
+  bool is_equal = true;
+
+  if (strlen(str1) != strlen(str2)) return false;
+
+  while (*str1 != '\0' && *str2 != '\0') {
+    if (*str1 != *str2) is_equal = false;
+
+    str1++;
+    str2++;
+  }
+
+  return is_equal;
 }
 
 

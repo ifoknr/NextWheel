@@ -312,12 +312,26 @@ static pthread_mutex_t process_states_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /* INFO: state file caching system. The state file is read on every app spawn
            (DAEMON_CHECK_IGNORING); it almost never changes, so cache the parsed
-           result and only re-read when the file's mtime changes. */
+           result and only re-read when the file's inode, size or mtime changes. */
 static struct module_state cached_state = { 0 };
 static bool has_cached_state = false;
-static time_t cached_state_mtime_sec = 0;
-static long cached_state_mtime_nsec = 0;
+static struct stat cached_state_st;
 static pthread_mutex_t state_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static bool same_state_file(const struct stat *a, const struct stat *b) {
+  return a->st_dev == b->st_dev && a->st_ino == b->st_ino && a->st_size == b->st_size &&
+         a->st_mtim.tv_sec == b->st_mtim.tv_sec && a->st_mtim.tv_nsec == b->st_mtim.tv_nsec;
+}
+
+/* INFO: The kernel updates mtime with a coarse clock, so two writes close together
+           can share one mtime. Only cache a file whose mtime is more than a second
+           old, so a write that lands in the same tick is never missed. */
+static bool state_file_settled(const struct stat *st) {
+  struct timespec now;
+  if (clock_gettime(CLOCK_REALTIME, &now) == -1) return false;
+
+  return now.tv_sec - st->st_mtim.tv_sec >= 2;
+}
 
 static int parse_state_file(struct module_state *state) {
   FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
@@ -471,9 +485,7 @@ void zygisk_companion_entry(int module_fd) {
       /* INFO: Serve from cache when the file is unchanged since last parse. */
       if (have_stat) {
         pthread_mutex_lock(&state_lock);
-        if (has_cached_state &&
-            cached_state_mtime_sec == st.st_mtim.tv_sec &&
-            cached_state_mtime_nsec == st.st_mtim.tv_nsec) {
+        if (has_cached_state && same_state_file(&cached_state_st, &st)) {
           state = cached_state;
           got_cached = true;
         }
@@ -485,11 +497,10 @@ void zygisk_companion_entry(int module_fd) {
           goto cleanup;
         }
 
-        if (have_stat) {
+        if (have_stat && state_file_settled(&st)) {
           pthread_mutex_lock(&state_lock);
           cached_state = state;
-          cached_state_mtime_sec = st.st_mtim.tv_sec;
-          cached_state_mtime_nsec = st.st_mtim.tv_nsec;
+          cached_state_st = st;
           has_cached_state = true;
           pthread_mutex_unlock(&state_lock);
         }

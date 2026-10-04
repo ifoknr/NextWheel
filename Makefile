@@ -43,7 +43,6 @@ ifeq ($(BUILD_TYPE), debug)
 	CFLAGS += -DDEBUG -O0 -g
 else
 	CFLAGS += -O2 -flto=full -ffunction-sections -fdata-sections                 \
-	          -fno-unwind-tables -fno-asynchronous-unwind-tables                  \
 	          -s -Wl,--strip-all -Wl,--exclude-libs,ALL -Wl,--as-needed           \
 	          -Wl,--gc-sections
 endif
