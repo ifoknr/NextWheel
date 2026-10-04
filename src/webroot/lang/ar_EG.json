@@ -22,7 +22,7 @@
         "active": "مفعّلة",
         "inactive": "متوقفة",
         "paused": "موقوفة مؤقتاً",
-        "summary": "%s / %s مفعّلة",
+        "summary": "المفعّلة: %s من %s",
         "items": {
           "zygoteMountInfoLeakFixing": "إصلاح تسريب mountinfo في Zygote",
           "mapsHiding": "إخفاء maps",
@@ -37,14 +37,14 @@
       },
       "dash": {
         "updated": "آخر تحديث %s",
-        "heroActive": "%s من %s حماية مفعّلة",
+        "heroActive": "الحمايات المفعّلة: %s من %s",
         "device": "الجهاز",
         "copy": "نسخ",
         "copied": "تم النسخ",
         "android": "أندرويد",
         "architecture": "المعمارية",
         "root": "الروت",
-        "disabledTitle": "%s حماية متوقفة",
+        "disabledTitle": "حمايات متوقفة: %s",
         "incompatibleTitle": "تم اكتشاف وحدات غير متوافقة",
         "crashedDesc": "توقف Treat Wheel بسبب خطأ أثناء الإخفاء",
         "unknownDesc": "تعذّرت قراءة حالة الوحدة"
