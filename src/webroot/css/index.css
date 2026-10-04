@@ -1,21 +1,35 @@
+/* INFO: English → Plus Jakarta Sans · Arabic → IBM Plex Sans Arabic.
+          Loaded from Google Fonts (works online); bundle woff2 under /fonts for
+          fully offline use. @import must stay at the very top of the stylesheet. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+
 :root {
-  --background: #141414;
-  --font: #fff;
-  --desc: #c9c9c9;
+  --background: #0a0b0d;
+  --font: #f3f5f8;
+  --desc: #8b93a0;
   --bright: #8d1d19;
-  --dim: #1c1c1c;
-  --dim-brigther: #3d3d3d;
+  --dim: #141518;
+  --dim-brigther: #23262d;
   --icon: #494949;
-  --icon-bc: #292929;
+  --icon-bc: #16181c;
   --small-card: var(--icon-bc);
-  --button: var(--background);
-  --button-enabled: #535353;
-  --desktop-navbar: #252525;
-  --desktop-navicon: #3a3a3a;
+  --button: #3a3f49;
+  --button-enabled: #34d399;
+  --desktop-navbar: #15181d;
+  --desktop-navicon: #232833;
+
+  /* Accent palette (shared by home dashboard + actions) */
+  --card: #141518;
+  --card-line: #23262d;
+  --faint: #6a7280;
+  --green: #34d399;
+  --amber: #f3a93a;
+  --red: #f05252;
+  --blue: #5b8cff;
 
   /* Locked Color */
   --lock: #fff;
-  --font-family: 'Outfit', sans-serif;
+  --font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', 'Outfit', -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
 }
 
 * {

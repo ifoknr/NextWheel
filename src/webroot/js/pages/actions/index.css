@@ -1,11 +1,24 @@
 /* INFO: Code shared with settings page */
 
+/* --- Modern card + switch styling (redesign) --- */
+.small_card {
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  border-radius: 16px;
+  padding: clamp(12px, 1.8vw, 20px) clamp(14px, 2vw, 22px);
+  margin: 0 clamp(14px, 3vw, 36px) clamp(10px, 1.4vw, 14px) clamp(14px, 3vw, 36px);
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .slider {
   position: absolute;
-  inset: 0; 
+  inset: 0;
   cursor: pointer;
   background-color: var(--button);
-  transition: 0.4s;
+  transition: 0.3s;
   border-radius: 34px;
 }
 
@@ -16,8 +29,8 @@
   width: 23px;
   left: 6px;
   bottom: 6px;
-  background-color: var(--desc);
-  transition: 0.4s;
+  background-color: #fff;
+  transition: 0.3s;
   border-radius: 50%;
 }
 
@@ -27,46 +40,51 @@ input:checked + .slider:before {
 
 input:checked + .slider {
   background-color: var(--button-enabled);
-  transition: 0.6s;
+  transition: 0.3s;
 }
 
 .action_card {
   display: inline-block;
-  width: 80%;
+  width: 78%;
   transition: opacity 0.5s;
 }
 
 .action_card_title {
-  font-size: 1.1em;
+  font-size: clamp(15px, 1.9vw, 20px);
+  font-weight: 600;
   padding-left: 5px;
-  padding-top: 6px;
+  padding-top: 2px;
   padding-bottom: 2px;
 }
 
 .action_card_title_with_flag {
-  font-size: 1.1em;
+  font-size: clamp(15px, 1.9vw, 20px);
+  font-weight: 600;
   padding-left: 5px;
-  padding-top: 6px;
+  padding-top: 2px;
   padding-bottom: 4px;
   line-height: 1.3;
   align-items: center;
 }
 
 .action_card_description {
-  font-size: 0.9em;
+  font-size: clamp(12.5px, 1.5vw, 16px);
+  color: var(--desc);
   padding-left: 5px;
-  padding-bottom: 6px;
+  padding-bottom: 2px;
+  line-height: 1.4;
 }
 
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 56px;
+  height: 32px;
   margin-left: 10px;
+  flex: 0 0 auto;
 }
 
-.switch input { 
+.switch input {
   opacity: 0;
   width: 0;
   height: 0;
@@ -77,20 +95,34 @@ input:checked + .slider {
 }
 
 .normal_title {
-  font-size: 16px;
+  font-size: clamp(15px, 1.9vw, 20px);
 }
 
 .flag_content {
-  padding: 4px 8px 4px 8px;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 550;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: clamp(10.5px, 1.2vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-right: 6px;
 }
 
 .experiment_flag {
   background-color: #ca2823;
+  color: #fff;
 }
 
 .futile_flag {
-  background-color: #454545;
+  background-color: #2b2f37;
+  color: var(--desc);
+}
+
+/* INFO: Keep the toggle list comfortably wide and centered on tablets/desktops */
+@media (min-width: 820px) {
+  #actions_content .panel,
+  .panel {
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

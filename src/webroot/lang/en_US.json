@@ -16,6 +16,38 @@
       "rootImpl": "Root Implementation",
       "rootImpls": {
         "multiple": "Multiple"
+      },
+      "protections": {
+        "title": "Protections",
+        "active": "Active",
+        "inactive": "Off",
+        "paused": "Paused",
+        "summary": "%s / %s active",
+        "items": {
+          "zygoteMountInfoLeakFixing": "Zygote mountinfo leak fixing",
+          "mapsHiding": "Maps hiding",
+          "revancedMountsUmount": "ReVanced mounts umount",
+          "customFontLoading": "Custom font loading",
+          "denylistLogicInversion": "Denylist logic inversion",
+          "moduleLoadingTracesHiding": "Module-loading traces hiding",
+          "fridaTracesHiding": "Frida traces hiding",
+          "propSpoofing": "Prop spoofing",
+          "gsiHiding": "GSI traces hiding"
+        }
+      },
+      "dash": {
+        "updated": "Updated just now",
+        "heroActive": "%s of %s protections active",
+        "device": "Device",
+        "copy": "Copy",
+        "copied": "Copied to clipboard",
+        "android": "Android",
+        "architecture": "Architecture",
+        "root": "Root",
+        "disabledTitle": "%s protections disabled",
+        "incompatibleTitle": "Incompatible modules detected",
+        "crashedDesc": "Treat Wheel crashed while hiding",
+        "unknownDesc": "Could not read module status"
       }
     },
     "actions": {
