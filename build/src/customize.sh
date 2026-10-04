@@ -36,10 +36,25 @@ if [ -z "$REZYGISK_VERSION" ]; then
   abort "! Could not determine the installed ReZygisk's version."
 fi
 
-if [ "$REZYGISK_VERSION" -lt "$REZYGISK_REQUIRED_VERSION" ]; then
-  ui_print "! The installed ReZygisk ($REZYGISK_VERSION) is too old."
-  abort    "! Please update to version $REZYGISK_REQUIRED_VERSION or higher."
-fi
+# INFO: NextZygisk keeps the "rezygisk" module id so it updates ReZygisk in place,
+#         but it renumbers versionCode from a commit count instead of ReZygisk's
+#         upstream scheme, so its versionCode is far below REZYGISK_REQUIRED_VERSION
+#         even though it implements the same Zygisk API (v5) Treat Wheel needs.
+#         Detect it by name/author and accept it instead of failing the numeric gate.
+REZYGISK_NAME=$(grep_prop name   $REZYGISK_PATH/module.prop)
+REZYGISK_AUTHOR=$(grep_prop author $REZYGISK_PATH/module.prop)
+
+case "$REZYGISK_NAME $REZYGISK_AUTHOR" in
+  *[Nn]ex[Tt][Zz]ygisk*)
+    ui_print "- Detected NextZygisk ($REZYGISK_VERSION); using it as the Zygisk provider."
+    ;;
+  *)
+    if [ "$REZYGISK_VERSION" -lt "$REZYGISK_REQUIRED_VERSION" ]; then
+      ui_print "! The installed ReZygisk ($REZYGISK_VERSION) is too old."
+      abort    "! Please update to version $REZYGISK_REQUIRED_VERSION or higher."
+    fi
+    ;;
+esac
 
 abort_verify() {
   ui_print "***********************************************************"
