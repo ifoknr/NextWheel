@@ -1,8 +1,5 @@
 /* INFO: Redesigned home dashboard (ReZygisk-style) */
 .tw_home {
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
   padding: clamp(16px, 2.4vw, 30px) clamp(14px, 3vw, 36px) 120px;
 }
 
@@ -68,9 +65,9 @@
 .tw_link { color: var(--blue); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: clamp(13px,1.5vw,15px); cursor: pointer; }
 
 /* Protections grid */
-.tw_grid { display: grid; gap: clamp(9px,1.2vw,13px); grid-template-columns: repeat(2, 1fr); }
-@media (min-width: 640px) { .tw_grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1000px) { .tw_grid { grid-template-columns: repeat(4, 1fr); } }
+.tw_grid { display: grid; gap: clamp(9px,1.2vw,13px); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* INFO: Nine protections: two columns on phones, a 3x3 grid on wider screens. */
+@media (min-width: 640px) { .tw_grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tw_cell { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: clamp(12px,1.5vw,17px); }
 .tw_cell_top { display: flex; align-items: center; gap: 8px; color: var(--desc); }
 .tw_cell_top svg { width: clamp(16px,1.8vw,19px); height: clamp(16px,1.8vw,19px); stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }

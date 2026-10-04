@@ -156,6 +156,7 @@ async function refreshDashboard() {
   }
   list.innerHTML = html
   const total = TW_PROTECTIONS.length
+  const listSep = document.documentElement.getAttribute('dir') === 'rtl' ? '، ' : ', '
 
   /* Overall status → hero + banner */
   let heroCls, ring, title, sub = '', deg = 360
@@ -163,8 +164,8 @@ async function refreshDashboard() {
   let bType = null, bTitle = '', bDesc = ''
 
   if (incompatible.length > 0) {
-    heroCls = 'err'; ring = 'err'; title = strings.workingModes.incompatibleModules.replace('%s', incompatible.join(', '))
-    bType = 'err'; bTitle = strings.dash.incompatibleTitle; bDesc = incompatible.join(', ')
+    heroCls = 'err'; ring = 'err'; title = strings.workingModes.incompatibleModules.replace('%s', incompatible.join(listSep))
+    bType = 'err'; bTitle = strings.dash.incompatibleTitle; bDesc = incompatible.join(listSep)
   } else if (twEnv.disabled) {
     heroCls = 'neutral'; ring = 'neutral'; title = strings.workingModes.disabled
   } else if (status.errno !== 0) {
@@ -177,7 +178,7 @@ async function refreshDashboard() {
     heroCls = 'ok'; ring = 'ok'; title = strings.workingModes.working
     sub = strings.dash.heroActive.replace('%s', active).replace('%s', total)
     deg = Math.round((active / total) * 360)
-    if (offNames.length > 0) { bType = 'warn'; bTitle = strings.dash.disabledTitle.replace('%s', offNames.length); bDesc = offNames.join(', ') }
+    if (offNames.length > 0) { bType = 'warn'; bTitle = strings.dash.disabledTitle.replace('%s', offNames.length); bDesc = offNames.join(listSep) }
   }
 
   const hero = document.getElementById('tw_hero')
