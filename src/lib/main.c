@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include <errno.h>
 #include <dlfcn.h>
 #include <time.h>
@@ -309,6 +310,58 @@ static struct tw_process_state *process_states = NULL;
 static size_t process_states_size = 0;
 static pthread_mutex_t process_states_lock = PTHREAD_MUTEX_INITIALIZER;
 
+/* INFO: state file caching system. The state file is read on every app spawn
+           (DAEMON_CHECK_IGNORING); it almost never changes, so cache the parsed
+           result and only re-read when the file's mtime changes. */
+static struct module_state cached_state = { 0 };
+static bool has_cached_state = false;
+static time_t cached_state_mtime_sec = 0;
+static long cached_state_mtime_nsec = 0;
+static pthread_mutex_t state_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static int parse_state_file(struct module_state *state) {
+  FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
+  if (!fp) {
+    PLOGE("Open state file");
+
+    return -1;
+  }
+
+  memset(state, 0, sizeof(*state));
+
+  static const struct { const char *key; size_t off; } fields[] = {
+    { "ignoring",                             offsetof(struct module_state, is_ignoring) },
+    { "disable_prop_spoofing",                offsetof(struct module_state, disable_prop_spoofing) },
+    { "disable_gsi_hiding",                   offsetof(struct module_state, disable_gsi_hiding) },
+    { "disable_zygote_mountinfo_leak_fixing", offsetof(struct module_state, disable_zygote_mountinfo_leak_fixing) },
+    { "disable_maps_hiding",                  offsetof(struct module_state, disable_maps_hiding) },
+    { "disable_revanced_mounts_umount",       offsetof(struct module_state, disable_revanced_mounts_umount) },
+    { "disable_custom_font_loading",          offsetof(struct module_state, disable_custom_font_loading) },
+    { "disable_denylist_logic_inversion",     offsetof(struct module_state, disable_denylist_logic_inversion) },
+    { "disable_module_loading_traces_hiding", offsetof(struct module_state, disable_module_loading_traces_hiding) },
+    { "disable_frida_traces_hiding",          offsetof(struct module_state, disable_frida_traces_hiding) }
+  };
+
+  char line[128];
+  while (fgets(line, sizeof(line), fp)) {
+    for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+      size_t key_len = strlen(fields[i].key);
+      if (strncmp(line, fields[i].key, key_len) != 0 || line[key_len] != '=') continue;
+
+      bool value = strncmp(line + key_len + 1, "true", strlen("true")) == 0;
+      *(bool *)((char *)state + fields[i].off) = value;
+
+      LOGI("Found %s state: %d", fields[i].key, value);
+
+      break;
+    }
+  }
+
+  fclose(fp);
+
+  return 0;
+}
+
 void zygisk_companion_entry(int module_fd) {
   while (1) {
     enum daemon_operations op;
@@ -323,61 +376,37 @@ void zygisk_companion_entry(int module_fd) {
     }
 
     if (op == DAEMON_CHECK_IGNORING) {
-      FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
-      if (!fp) {
-        PLOGE("Open state file");
+      struct module_state state;
+      struct stat st;
+      bool have_stat = stat("/data/adb/treat_wheel/state", &st) == 0;
+      bool got_cached = false;
 
-        goto cleanup;
+      /* INFO: Serve from cache when the file is unchanged since last parse. */
+      if (have_stat) {
+        pthread_mutex_lock(&state_lock);
+        if (has_cached_state &&
+            cached_state_mtime_sec == st.st_mtim.tv_sec &&
+            cached_state_mtime_nsec == st.st_mtim.tv_nsec) {
+          state = cached_state;
+          got_cached = true;
+        }
+        pthread_mutex_unlock(&state_lock);
       }
 
-      struct module_state state = { 0 };
+      if (!got_cached) {
+        if (parse_state_file(&state) == -1) {
+          goto cleanup;
+        }
 
-      char line[128];
-      while (fgets(line, sizeof(line), fp)) {
-        if (str_starts_with(line, "ignoring=")) {
-          state.is_ignoring = strncmp(line + strlen("ignoring="), "true", strlen("true")) == 0;
-
-          LOGI("Found ignoring state: %d", state.is_ignoring);
-        } else if (str_starts_with(line, "disable_prop_spoofing=")) {
-          state.disable_prop_spoofing = strncmp(line + strlen("disable_prop_spoofing="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_prop_spoofing state: %d", state.disable_prop_spoofing);
-        } else if (str_starts_with(line, "disable_gsi_hiding=")) {
-          state.disable_gsi_hiding = strncmp(line + strlen("disable_gsi_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_gsi_hiding state: %d", state.disable_gsi_hiding);
-        } else if (str_starts_with(line, "disable_zygote_mountinfo_leak_fixing=")) {
-          state.disable_zygote_mountinfo_leak_fixing = strncmp(line + strlen("disable_zygote_mountinfo_leak_fixing="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_zygote_mountinfo_leak_fixing state: %d", state.disable_zygote_mountinfo_leak_fixing);
-        } else if (str_starts_with(line, "disable_maps_hiding=")) {
-          state.disable_maps_hiding = strncmp(line + strlen("disable_maps_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_maps_hiding state: %d", state.disable_maps_hiding);
-        } else if (str_starts_with(line, "disable_revanced_mounts_umount=")) {
-          state.disable_revanced_mounts_umount = strncmp(line + strlen("disable_revanced_mounts_umount="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_revanced_mounts_umount state: %d", state.disable_revanced_mounts_umount);
-        } else if (str_starts_with(line, "disable_custom_font_loading=")) {
-          state.disable_custom_font_loading = strncmp(line + strlen("disable_custom_font_loading="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_custom_font_loading state: %d", state.disable_custom_font_loading);
-        } else if (str_starts_with(line, "disable_denylist_logic_inversion=")) {
-          state.disable_denylist_logic_inversion = strncmp(line + strlen("disable_denylist_logic_inversion="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_denylist_logic_inversion state: %d", state.disable_denylist_logic_inversion);
-        } else if (str_starts_with(line, "disable_module_loading_traces_hiding=")) {
-          state.disable_module_loading_traces_hiding = strncmp(line + strlen("disable_module_loading_traces_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_module_loading_traces_hiding state: %d", state.disable_module_loading_traces_hiding);
-        } else if (str_starts_with(line, "disable_frida_traces_hiding=")) {
-          state.disable_frida_traces_hiding = strncmp(line + strlen("disable_frida_traces_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_frida_traces_hiding state: %d", state.disable_frida_traces_hiding);
+        if (have_stat) {
+          pthread_mutex_lock(&state_lock);
+          cached_state = state;
+          cached_state_mtime_sec = st.st_mtim.tv_sec;
+          cached_state_mtime_nsec = st.st_mtim.tv_nsec;
+          has_cached_state = true;
+          pthread_mutex_unlock(&state_lock);
         }
       }
-
-      fclose(fp);
 
       write_loop(module_fd, &state, sizeof(state));
     } else if (op == DAEMON_CHECK_FONTS) {
