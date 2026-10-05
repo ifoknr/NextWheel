@@ -59,7 +59,8 @@ async function _readStateFlags() {
            through the state.json it publishes. NextZygisk can also be told to skip the
            root unmount, which leaves the "clean" namespace NextWheel requests mounted. */
 async function _readZygiskHealth() {
-  const health = { down: false, reason: '', umountOff: false }
+  /* INFO: known: state.json was read. loaded: NextZygisk loaded NextWheel at boot. */
+  const health = { down: false, reason: '', umountOff: false, known: false, loaded: false }
 
   health.umountOff = await _fileExists('/data/adb/nextzygisk/umount_disabled')
 
@@ -68,6 +69,7 @@ async function _readZygiskHealth() {
 
   let state
   try { state = JSON.parse(result.stdout) } catch (e) { return health }
+  health.known = true
 
   /* INFO: monitor.state is the tracer's enum, where 0 is TRACING. */
   if (state.monitor && String(state.monitor.state) !== '0') {
@@ -76,6 +78,8 @@ async function _readZygiskHealth() {
   }
 
   for (const daemon of Object.values(state.rezygiskd || {})) {
+    if (Array.isArray(daemon.modules) && daemon.modules.includes('treat_wheel')) health.loaded = true
+
     if (Number(daemon.state) !== 0) continue;
 
     health.down = true
@@ -178,12 +182,11 @@ async function refreshDashboard() {
   const incompatible = globalThis.incompatibleModules
 
   /* Protections grid */
-  let active = 0, offNames = []
+  let active = 0
   let html = ''
   for (const [key, disableKey] of TW_PROTECTIONS) {
     const isActive = !ignoring && !twEnv.disabled && flags[disableKey] !== true
     if (isActive) active++
-    else if (!ignoring && !twEnv.disabled && flags[disableKey] === true) offNames.push(strings.protections.items[key] || key)
 
     const label = strings.protections.items[key] || key
     const stateText = (ignoring || twEnv.disabled) ? strings.protections.paused : (isActive ? strings.protections.active : strings.protections.inactive)
@@ -210,7 +213,9 @@ async function refreshDashboard() {
     /* INFO: The reason comes from NextZygisk in English. Isolate it (FSI…PDI) so it
                stays in one piece inside right-to-left text. */
     bDesc = zygisk.reason ? `${strings.dash.zygiskDownDesc} ⁨(${zygisk.reason})⁩` : strings.dash.zygiskDownDesc
-  } else if (status.errno !== 0) {
+  } else if (status.errno !== 0 && !(zygisk.known && zygisk.loaded)) {
+    /* INFO: No status file yet just means no app went through hiding since boot. When
+               NextZygisk reports NextWheel loaded, that is not a problem. */
     heroCls = 'warn'; ring = 'warn'; title = strings.workingModes.unknown; bType = 'warn'; bTitle = strings.workingModes.unknown; bDesc = strings.dash.unknownDesc
   } else if (ignoring) {
     heroCls = 'neutral'; ring = 'neutral'; title = strings.workingModes.ignoring
@@ -225,7 +230,8 @@ async function refreshDashboard() {
     heroCls = 'ok'; ring = 'ok'; title = strings.workingModes.working
     sub = strings.dash.heroActive.replace('%s', active).replace('%s', total)
     deg = Math.round((active / total) * 360)
-    if (offNames.length > 0) { bType = 'warn'; bTitle = strings.dash.disabledTitle.replace('%s', offNames.length); bDesc = offNames.join(listSep) }
+    /* INFO: Turning protections off is the user's choice, not a fault: the cells show
+               "Off", but it does not raise a warning or change the overall status. */
   }
 
   const hero = document.getElementById('tw_hero')
