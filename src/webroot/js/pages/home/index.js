@@ -93,6 +93,15 @@ async function _readZygiskHealth() {
   return health
 }
 
+/* INFO: NextSUSFS (the kernel-level SuSFS module) publishes its state in a status file.
+           Show a chip for it when it is installed, so the whole stack is visible here. */
+async function _readSusfs() {
+  const present = (await exec('stat /data/adb/modules/nextsusfs')).errno === 0
+  if (!present) return { present: false, working: false }
+  const status = await exec('cat /data/adb/nextsusfs/status')
+  return { present: true, working: status.errno === 0 && status.stdout.trim() === 'working' }
+}
+
 async function _getVersion() {
   const moduleProp = await exec('cat /data/adb/modules/treat_wheel/module.prop')
   if (moduleProp.errno !== 0) return '???'
@@ -179,6 +188,7 @@ async function refreshDashboard() {
   const ignoring = flags['ignoring'] === true
   const status = await exec('cat /data/adb/treat_wheel/status')
   const zygisk = await _readZygiskHealth()
+  const susfs = await _readSusfs()
   const incompatible = globalThis.incompatibleModules
 
   /* Protections grid */
@@ -250,7 +260,10 @@ async function refreshDashboard() {
   if (chipsEl) chipsEl.innerHTML =
     `<span class="tw_chip v">${esc(twEnv.version)}</span>` +
     `<span class="tw_chip">${esc(twEnv.rootImpl)}</span>` +
-    `<span class="tw_chip">${active}/${total}</span>`
+    `<span class="tw_chip">${active}/${total}</span>` +
+    /* INFO: Show a SuSFS chip when NextSUSFS is installed: green when it is working in
+               the kernel, amber when installed but the kernel has no SuSFS. */
+    (susfs.present ? `<span class="tw_chip" style="color:${susfs.working ? 'var(--green)' : 'var(--amber)'}">SuSFS</span>` : '')
 
   if (banner) {
     if (bType) {
