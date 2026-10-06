@@ -1,5 +1,10 @@
 # NextWheel changelog
 
+## v0.0.14
+- Updates from the root manager: module.prop has an updateJson link to this repository,
+  and each release updates update.json, so the next versions show up as updates
+  automatically.
+
 ## v0.0.13
 - Fixed: the module banner did not show in the root manager. The installer now extracts
   banner.png, and module.prop points to it relative to the module folder (banner=banner.png).
