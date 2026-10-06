@@ -82,7 +82,7 @@ build:
 		sed -i 's/ display: none;//g' $(BUILD_PATH)/webroot/js/pages/home/index.html; \
 	fi
 
-	@rm -rf ../build/NextWheel.zip
+	@rm -f build/NextWheel.zip
 	@(cd $(BUILD_PATH) && zip -r ../NextWheel.zip .) > /dev/null
 
 compile_arch:
