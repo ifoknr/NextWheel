@@ -577,12 +577,12 @@ export function getStrings(pageId, forceDefault = false) {
     })
 }
 
-/* INFO: Arabic and other right-to-left languages flip the page direction. Languages with
-           letters Orbitron lacks (Polish, Turkish, Vietnamese) switch the font to Roboto. */
+/* INFO: Arabic and other right-to-left languages flip the page direction. Vietnamese, whose
+           tone marks Sora lacks, switches the font to Roboto. */
 function applyLanguageDirection(langId) {
   document.documentElement.setAttribute('dir', /^(ar|fa|he|ur)_/.test(langId || '') ? 'rtl' : 'ltr')
 
-  if (/^(pl|tr|vi)_/.test(langId || '')) document.documentElement.setAttribute('data-font', 'roboto')
+  if (/^vi_/.test(langId || '')) document.documentElement.setAttribute('data-font', 'roboto')
   else document.documentElement.removeAttribute('data-font')
 }
 
