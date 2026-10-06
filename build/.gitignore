@@ -10,3 +10,4 @@
 !src/uninstall.sh
 !.gitignore
 !/module.prop
+!src/banner.png

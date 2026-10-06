@@ -24,14 +24,14 @@
 
   /* Locked Color */
   --lock: #fff;
-  /* INFO: Orbitron for English text, Roboto for Cyrillic, Noto Kufi Arabic for Arabic. All
-            are bundled in fonts/ (see fonts/fonts.css), as the WebUI runs offline in the
-            root manager. */
-  --font-family: 'Orbitron', 'Roboto', 'Noto Kufi Arabic', sans-serif;
+  /* INFO: The NEXT design fonts: Sora for Latin text, Roboto for Cyrillic, Noto Kufi Arabic
+            for Arabic. All are bundled in fonts/ (see fonts/fonts.css), as the WebUI runs
+            offline in the root manager. */
+  --font-family: 'Sora', 'Roboto', 'Noto Kufi Arabic', sans-serif;
 }
 
-/* INFO: Orbitron has no glyphs for some Polish, Turkish and Vietnamese letters, which
-           would make words mix two fonts. pageLoader.js sets data-font for those languages. */
+/* INFO: Sora has no glyphs for Vietnamese tone marks, which would make words mix two fonts.
+           pageLoader.js sets data-font for Vietnamese. */
 :root[data-font="roboto"] {
   --font-family: 'Roboto', 'Noto Kufi Arabic', sans-serif;
 }

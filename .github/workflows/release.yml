@@ -1,0 +1,62 @@
+name: Release
+
+# INFO: Publishes a GitHub Release for the version in build/module.prop, with that
+#         version's section of CHANGELOG.md as notes. Either:
+#         - Actions > Release > Run workflow (on main): creates the tag itself, or
+#         - push a tag that matches the version (git tag v0.0.12 && git push origin v0.0.12).
+#         Built without IS_GITHUB_ACTION, so the WebUI has no "experimental build" warning.
+on:
+  workflow_dispatch:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check version
+        run: |
+          prop=$(sed -n 's/^version=//p' build/module.prop)
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$prop" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match module.prop version $prop" >&2
+            exit 1
+          fi
+          echo "TAG=$prop" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME" make release
+
+      - name: Package
+        run: |
+          mkdir -p out
+          cp build/NextWheel.zip out/NextWheel.zip
+          cp build/NextWheel.zip "out/NextWheel-$TAG.zip"
+
+      - name: Write release notes
+        run: |
+          {
+            echo '> [!WARNING]'
+            echo '> **Personal project, use at your own risk.** Keep a way to boot without modules (safe mode) before installing.'
+            echo
+            echo '## Changes'
+            echo
+            awk -v v="## $TAG" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md
+            echo
+            echo '## Install'
+            echo
+            echo 'Install `NextWheel.zip` from your root manager → Modules → Install from storage, then reboot. Needs [NextZygisk](https://github.com/ifoknr/NexTZygisk) (or ReZygisk 508+).'
+          } > notes.md
+          cat notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" out/NextWheel.zip "out/NextWheel-$TAG.zip" \
+            --target "$GITHUB_SHA" --title "NextWheel $TAG" --notes-file notes.md

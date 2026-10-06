@@ -30,8 +30,11 @@ ifeq ($(TERMUX_VERSION),)
 		CC = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
 		STRIP = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
 	else
-		CC = $(ANDROID_HOME)/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
-		STRIP = $(ANDROID_HOME)/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+		# INFO: ANDROID_NDK_HOME, when set, points straight at an NDK; otherwise use the
+		#         pinned NDK inside the Android SDK.
+		NDK_DIR := $(if $(ANDROID_NDK_HOME),$(ANDROID_NDK_HOME),$(ANDROID_HOME)/ndk/29.0.14206865)
+		CC = $(NDK_DIR)/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
+		STRIP = $(NDK_DIR)/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
 	endif
 else
 	ADB_PUSH := su -c cp -r
@@ -82,7 +85,7 @@ build:
 		sed -i 's/ display: none;//g' $(BUILD_PATH)/webroot/js/pages/home/index.html; \
 	fi
 
-	@rm -rf ../build/NextWheel.zip
+	@rm -f build/NextWheel.zip
 	@(cd $(BUILD_PATH) && zip -r ../NextWheel.zip .) > /dev/null
 
 compile_arch:

@@ -9,3 +9,6 @@ See LICENSE file for the full license text.
 
 Navbar icons from Lucide (https://lucide.dev)
 Copyright (c) Lucide Icons and Contributors, licensed under the ISC License.
+
+WebUI fonts: Sora, Roboto and Noto Kufi Arabic (https://fontsource.org), licensed under
+the SIL Open Font License 1.1 (see src/webroot/fonts/OFL.txt).
