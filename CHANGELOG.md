@@ -1,5 +1,9 @@
 # NextWheel changelog
 
+## v0.0.13
+- Fixed: the module banner did not show in the root manager. The installer now extracts
+  banner.png, and module.prop points to it relative to the module folder (banner=banner.png).
+
 ## v0.0.12
 First NextWheel release, based on Treat Wheel 0.0.11 by ThePedroo.
 
