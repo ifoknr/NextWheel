@@ -1,7 +1,7 @@
 id=treat_wheel
 name=NextWheel
-version=v0.0.12
-versionCode=0012
+version=v0.0.13
+versionCode=0013
 author=ifoknr & ThePedroo
 description=A Treat Wheel fork made for NextZygisk - the wheel to reinvent the new light.
-banner=/data/adb/modules/treat_wheel/banner.png
+banner=banner.png
