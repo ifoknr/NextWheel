@@ -35,7 +35,7 @@ const HidingState = {
 export async function loadOnce() {
   let state = await exec('cat /data/adb/treat_wheel/state')
   if (state.errno !== 0) {
-    toast('Error getting state of Treat Wheel!')
+    toast('Error getting state of NextWheel!')
 
     return;
   }
@@ -119,8 +119,10 @@ export async function load() {
   const tw_disable_module_loading_traces_hiding_switch = document.getElementById('tw_disable_module_loading_traces_hiding_switch')
   const tw_disable_frida_traces_hiding_switch = document.getElementById('tw_disable_frida_traces_hiding_switch')
 
+  /* INFO: Changing a protection must not change the overall status. Only clear a
+             "crashed" status, so a stale crash report can be dismissed this way. */
   async function _resetStatus() {
-    await exec('rm -rf /data/adb/treat_wheel/status')
+    await exec('grep -q crashed /data/adb/treat_wheel/status && rm -f /data/adb/treat_wheel/status')
   }
 
   function _updateButtonsState() {

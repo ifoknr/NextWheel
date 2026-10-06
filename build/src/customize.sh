@@ -2,7 +2,7 @@
 SKIPUNZIP=1
 
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
-ui_print "- Installing Treat Wheel $VERSION"
+ui_print "- Installing NextWheel $VERSION"
 
 if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ] && [ "$ARCH" != "x86" ] && [ "$ARCH" != "x64" ]; then
   abort "! Unsupported platform: $ARCH"
@@ -12,23 +12,23 @@ fi
 
 # INFO: Zygisk Assistant and NoHello are not supported. If present, refuse to install
 if [ -d "/data/adb/modules/zygisk_assistant" ] || [ -d "/data/adb/modules_update/zygisk_assistant" ]; then
-  abort "! Zygisk Assistant is outdated and causes detections. Please uninstall it before installing Treat Wheel."
+  abort "! Zygisk Assistant is outdated and causes detections. Please uninstall it before installing NextWheel."
 fi
 
 if [ -d "/data/adb/modules/nohello" ] || [ -d "/data/adb/modules_update/nohello" ]; then
-  abort "! NoHello is outdated and doesn't provide any benefits. Please uninstall it before installing Treat Wheel."
+  abort "! NoHello is outdated and doesn't provide any benefits. Please uninstall it before installing NextWheel."
 fi
 
 REZYGISK_REQUIRED_VERSION=508
 
-# INFO: Treat Wheel won't work in any other Zygisk anyway. Demand ReZygisk.
+# INFO: NextWheel won't work in any other Zygisk anyway. Demand NextZygisk or ReZygisk.
 if [ -d "/data/adb/modules_update/rezygisk" ]; then
   REZYGISK_PATH="/data/adb/modules_update/rezygisk"
 elif [ -d "/data/adb/modules/rezygisk" ]; then
   REZYGISK_PATH="/data/adb/modules/rezygisk"
 else
-  ui_print "- ReZygisk $REZYGISK_REQUIRED_VERSION or higher is required but not found."
-  abort    "- No other Zygisk implementation is supported or works with Treat Wheel."
+  ui_print "- NextZygisk, or ReZygisk $REZYGISK_REQUIRED_VERSION or higher, is required but not found."
+  abort    "- No other Zygisk implementation is supported or works with NextWheel."
 fi
 
 REZYGISK_VERSION=$(grep_prop versionCode $REZYGISK_PATH/module.prop)
@@ -36,10 +36,25 @@ if [ -z "$REZYGISK_VERSION" ]; then
   abort "! Could not determine the installed ReZygisk's version."
 fi
 
-if [ "$REZYGISK_VERSION" -lt "$REZYGISK_REQUIRED_VERSION" ]; then
-  ui_print "! The installed ReZygisk ($REZYGISK_VERSION) is too old."
-  abort    "! Please update to version $REZYGISK_REQUIRED_VERSION or higher."
-fi
+# INFO: NextZygisk keeps the "rezygisk" module id so it updates ReZygisk in place,
+#         but it renumbers versionCode from a commit count instead of ReZygisk's
+#         upstream scheme, so its versionCode is far below REZYGISK_REQUIRED_VERSION
+#         even though it implements the same Zygisk API (v5) NextWheel needs.
+#         Detect it by name/author and accept it instead of failing the numeric gate.
+REZYGISK_NAME=$(grep_prop name   $REZYGISK_PATH/module.prop)
+REZYGISK_AUTHOR=$(grep_prop author $REZYGISK_PATH/module.prop)
+
+case "$REZYGISK_NAME $REZYGISK_AUTHOR" in
+  *[Nn]ex[Tt][Zz]ygisk*)
+    ui_print "- Detected NextZygisk ($REZYGISK_VERSION); using it as the Zygisk provider."
+    ;;
+  *)
+    if [ "$REZYGISK_VERSION" -lt "$REZYGISK_REQUIRED_VERSION" ]; then
+      ui_print "! The installed ReZygisk ($REZYGISK_VERSION) is too old."
+      abort    "! Please update to version $REZYGISK_REQUIRED_VERSION or higher."
+    fi
+    ;;
+esac
 
 abort_verify() {
   ui_print "***********************************************************"
@@ -154,18 +169,19 @@ unzip -o "$ZIPFILE" "webroot/*" -d "$MODPATH"
 
 if [ ! -d "/data/adb/treat_wheel" ]; then
   mkdir "/data/adb/treat_wheel"
+fi
 
+if [ ! -f "/data/adb/treat_wheel/state" ]; then
   touch "/data/adb/treat_wheel/state"
 fi
 
-# INFO: Only append the defaults if they are not already there
+# INFO: All protections are enabled by default; the WebUI Actions page is where
+#         users turn them off. Older installers forced ReVanced umount and DenyList
+#         inversion off on every install, so turn those two back on once.
+if [ ! -f "/data/adb/treat_wheel/defaults_all_enabled" ]; then
+  sed -i '/^disable_revanced_mounts_umount=/d; /^disable_denylist_logic_inversion=/d' "/data/adb/treat_wheel/state"
 
-if ! grep -q "disable_revanced_mounts_umount=true" "/data/adb/treat_wheel/state"; then
-  echo "disable_revanced_mounts_umount=true" >> "/data/adb/treat_wheel/state"
+  touch "/data/adb/treat_wheel/defaults_all_enabled"
 fi
 
-if ! grep -q "disable_denylist_logic_inversion=true" "/data/adb/treat_wheel/state"; then
-  echo "disable_denylist_logic_inversion=true" >> "/data/adb/treat_wheel/state"
-fi
-
-ui_print "- Welcome to Treat Wheel $VERSION"
+ui_print "- Welcome to NextWheel $VERSION"

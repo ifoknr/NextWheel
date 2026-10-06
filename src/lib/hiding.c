@@ -62,6 +62,22 @@ int do_gsi_hiding(struct api_table *api_table, JNIEnv *tw_env) {
   return 1;
 }
 
+/* INFO: When the companion told this process to provide the mount line, it then waits
+           for both replies. If we fail before producing them, still answer, with a NULL
+           line and an empty string, so the companion does not read our later messages as
+           the line (which would desync it and could hand another app a bad pointer). The
+           companion ignores NULL/empty answers and waits for a process that succeeds. */
+#define BIONIC_LINE_BUFFER_SIZE 1024
+static int zmlh_send_nothing(void) {
+  char *no_line = NULL;
+  static const char no_string[BIONIC_LINE_BUFFER_SIZE] = { 0 };
+
+  if (write_loop(cfd, &no_line, sizeof(no_line)) == -1) return 0;
+  write_loop(cfd, no_string, sizeof(no_string));
+
+  return 0;
+}
+
 int do_zygote_mountinfo_leak_hiding(struct api_table *api_table, JNIEnv *tw_env) {
   (void) api_table; (void) tw_env;
 
@@ -81,7 +97,6 @@ int do_zygote_mountinfo_leak_hiding(struct api_table *api_table, JNIEnv *tw_env)
     return 0;
   }
 
-  #define BIONIC_LINE_BUFFER_SIZE 1024
   static char mntent_string[BIONIC_LINE_BUFFER_SIZE];
   char *mntent_line = NULL;
 
@@ -90,7 +105,7 @@ int do_zygote_mountinfo_leak_hiding(struct api_table *api_table, JNIEnv *tw_env)
     if (pipe(pipes) == -1) {
       PLOGE("ZMLH: Pipe");
 
-      return 0;
+      return zmlh_send_nothing();
     }
 
     int pid = syscall(SYS_clone, SIGCHLD, 0);
@@ -100,7 +115,7 @@ int do_zygote_mountinfo_leak_hiding(struct api_table *api_table, JNIEnv *tw_env)
       close(pipes[0]);
       close(pipes[1]);
 
-      return 0;
+      return zmlh_send_nothing();
     }
 
     uintptr_t value = 0;
@@ -153,16 +168,18 @@ int do_zygote_mountinfo_leak_hiding(struct api_table *api_table, JNIEnv *tw_env)
       PLOGE("ZMLH: Read pipe");
 
       close(pipes[0]);
+      waitpid(pid, NULL, 0);
 
-      return 0;
+      return zmlh_send_nothing();
     }
 
     if (read_loop(pipes[0], &mntent_line, sizeof(mntent_line)) != sizeof(mntent_line)) {
       PLOGE("ZMLH: Read pipe mntent line");
 
       close(pipes[0]);
+      waitpid(pid, NULL, 0);
 
-      return 0;
+      return zmlh_send_nothing();
     }
 
     LOGD("ZMLH: Got mntent string: %.*s (%zu)", (int)sizeof(mntent_string), mntent_string, strlen(mntent_string));

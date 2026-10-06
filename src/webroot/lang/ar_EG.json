@@ -1,0 +1,123 @@
+{
+  "langName": "العربية",
+  "pages": {
+    "home": {
+      "title": "الرئيسية",
+      "workingModes": {
+        "working": "يعمل ويُخفي",
+        "crashed": "توقف بسبب خطأ أثناء الإخفاء",
+        "ignoring": "وضع التجاهل",
+        "unknown": "تعذّر تحديد الحالة",
+        "disabled": "معطّل",
+        "incompatibleModules": "تم اكتشاف وحدات غير متوافقة: %s",
+        "ciBuild": "هذه نسخة تجريبية. قد لا تعمل بعض الميزات كما هو متوقع.",
+        "zygiskDown": "Zygisk لا يعمل",
+        "umountOff": "فك تركيب الروت متوقف"
+      },
+      "version": "الإصدار",
+      "rootImpl": "نوع الروت",
+      "rootImpls": {
+        "multiple": "متعدد"
+      },
+      "protections": {
+        "title": "الحمايات",
+        "active": "مفعّلة",
+        "inactive": "متوقفة",
+        "paused": "موقوفة مؤقتاً",
+        "summary": "المفعّلة: %s من %s",
+        "items": {
+          "zygoteMountInfoLeakFixing": "إصلاح تسريب mountinfo في Zygote",
+          "mapsHiding": "إخفاء maps",
+          "revancedMountsUmount": "إلغاء تركيبات ReVanced",
+          "customFontLoading": "تحميل الخطوط المخصصة",
+          "denylistLogicInversion": "عكس منطق DenyList",
+          "moduleLoadingTracesHiding": "إخفاء آثار تحميل الوحدات",
+          "fridaTracesHiding": "إخفاء آثار Frida",
+          "propSpoofing": "تزييف الخصائص (props)",
+          "gsiHiding": "إخفاء آثار GSI"
+        }
+      },
+      "dash": {
+        "updated": "آخر تحديث %s",
+        "heroActive": "الحمايات المفعّلة: %s من %s",
+        "device": "الجهاز",
+        "copy": "نسخ",
+        "copied": "تم النسخ",
+        "android": "أندرويد",
+        "architecture": "المعمارية",
+        "root": "الروت",
+        "disabledTitle": "حمايات متوقفة: %s",
+        "incompatibleTitle": "تم اكتشاف وحدات غير متوافقة",
+        "crashedDesc": "توقف NextWheel بسبب خطأ أثناء الإخفاء",
+        "unknownDesc": "تعذّرت قراءة حالة الوحدة",
+        "zygiskDownDesc": "NextZygisk/ReZygisk لا يحقن التطبيقات، لذلك NextWheel لا يُخفي شيئًا في التطبيقات التي تُفتح الآن",
+        "umountOffDesc": "فك تركيب الروت متوقف في NextZygisk، لذلك التطبيقات التي يُخفي عنها NextWheel الروت ما زالت ترى آثاره. أعد تفعيله من واجهة NextZygisk."
+      }
+    },
+    "actions": {
+      "title": "الإجراءات",
+      "flags": {
+        "experimental": "تجريبي",
+        "futile": "محدود الفائدة"
+      },
+      "ignoreMode": {
+        "title": "تجاهل الجميع وكل شيء",
+        "description": "يعطّل هذا الخيار NextWheel مؤقتاً. يمكن إعادة تفعيله بدون إعادة تشغيل، لكن تفعيله يوقف كل خيارات الإخفاء حتى تطفئه."
+      },
+      "propSpoofing": {
+        "title": "إيقاف تزييف الخصائص",
+        "description": "يجعل NextWheel يتوقف عن تزييف الخصائص الحساسة والخاصة بالرومات المعدّلة. يحتاج إعادة تشغيل حتى يطبَّق."
+      },
+      "gsiTraceHiding": {
+        "title": "إيقاف إخفاء آثار GSI",
+        "description": "يجعل NextWheel يتوقف عن إخفاء آثار GSI."
+      },
+      "zygoteMountInfoLeakFixing": {
+        "title": "إيقاف إصلاح تسريب mountinfo في Zygote",
+        "description": "يجعل NextWheel يتوقف عن إصلاح تسريب mountinfo الذي يسببه Zygote، أي إرجاعه كما يكون في جهاز بدون روت. يتطلب أندرويد 11 أو أحدث."
+      },
+      "mapsHiding": {
+        "title": "إيقاف إخفاء maps",
+        "description": "يجعل NextWheel يتوقف عن إخفاء الخرائط المشبوهة في الذاكرة. هذا النوع من الإخفاء محدود الفائدة، لكنه يساعد على تجاوز بعض أدوات الكشف."
+      },
+      "ReVancedModuleMountsHiding": {
+        "title": "إيقاف إخفاء تركيبات وحدات ReVanced",
+        "description": "يجعل NextWheel يتوقف عن إخفاء التركيبات التي تنشئها وحدات ReVanced على مستوى النظام. يجب أن تدعم وحدة ReVanced برنامج NextWheel صراحةً حتى يلغي تركيباتها."
+      },
+      "customFontLoading": {
+        "title": "إيقاف تحميل الخطوط المخصصة",
+        "description": "يجعل NextWheel يتوقف عن تحميل الخطوط المخصصة من النظام."
+      },
+      "denylistLogicInversion": {
+        "title": "إيقاف عكس منطق DenyList",
+        "description": "يجعل NextWheel يتوقف عن عكس DenyList، فتُخفى صلاحية الروت عن التطبيقات الموجودة في DenyList ولا تُخفى عن غيرها. يشبه SuList في Magisk Kitsune عندما يكون هذا الخيار متوقفاً."
+      },
+      "moduleLoadingTracesHiding": {
+        "title": "إيقاف إخفاء آثار تحميل الوحدات",
+        "description": "يجعل NextWheel يتوقف عن إخفاء الآثار التي تتركها بعض الوحدات أثناء تحميلها."
+      },
+      "fridaTracesHiding": {
+        "title": "إيقاف إخفاء آثار Frida",
+        "description": "يجعل NextWheel يتوقف عن إخفاء آثار الحقن التي يتركها Frida."
+      }
+    },
+    "settings": {
+      "title": "الإعدادات",
+      "language": {
+        "title": "تغيير اللغة",
+        "description": "تغيير لغة الواجهة إلى اللغة المختارة."
+      },
+      "fullscreen": {
+        "title": "إيقاف وضع ملء الشاشة في الواجهة",
+        "description": "يجعل الواجهة لا تملأ الشاشة بالكامل."
+      },
+      "moduleDevelopers": "مطوّر (مطوّرو) الوحدة",
+      "WebUIDevelopers": "مطوّر (مطوّرو) الواجهة",
+      "moduleLicense": "رخصة الوحدة",
+      "basedOn": "مبني على Treat Wheel من تطوير"
+    }
+  },
+  "globals": {
+    "unknown": "غير معروف"
+  }
+}

@@ -77,40 +77,84 @@
   animation: openNav 0.15s;
 }
 
-@media (min-width:961px)  {
-  #navbar {
-    background-color: var(--desktop-navbar);
-    transform: scale(0.85);
-    left: auto; 
-    right: auto;
-    margin-bottom: 15px;
-    border-radius: 60px;
-    padding: 10px 10px;
-  }
-  .navtitle {
-    display: none;
-  }
-  .navicon_support {
-    border-radius: 60px;
-  }
-  #navbar_support_div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-  }
-  .navicon {
-    background: var(--desktop-navicon);
-    height: 65px;
-    animation: closeNavDesktop 0.15s;
-  }
-  .navicon.show {
-    animation: openNavDesktop 0.15s;
-  }
-  .nav_dimc {
-    background: var(--desktop-navbar);
-  }
+/* INFO: Compact floating navbar: a centered pill above the bottom edge with small icons
+           and labels; the current page gets a soft capsule behind its icon. Same design
+           on phones, tablets and desktop. Colors come from theme variables. */
+#navbar_support_div {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px calc(12px + var(--window-inset-bottom, 0px));
+  background: transparent;
+  pointer-events: none;
+}
+
+#navbar {
+  position: static;
+  pointer-events: auto;
+  width: min(100%, var(--tw-nav-width, 360px));
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2px;
+  margin: 0;
+  padding: 6px;
+  transform: none;
+  border-radius: 999px;
+  background-color: var(--dim);
+  border: 1px solid var(--card-line, rgba(127, 127, 127, 0.2));
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  font-size: 12px;
+}
+
+#navbar .navicon_support,
+#navbar .nav_dimc {
+  background: transparent;
+}
+
+#navbar label.radio {
+  display: block;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+/* INFO: The markup sets a 65px inline width on the icon holder. */
+#navbar .navicon_support > .navicon_support {
+  width: 52px !important;
+}
+
+#navbar .navicon {
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, 0.26);
+}
+
+#navbar .navicon.show {
+  width: 52px;
+}
+
+#navbar #ni_home,
+#navbar #ni_modules,
+#navbar #ni_actions,
+#navbar #ni_settings {
+  width: 21px;
+  height: 21px;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+#navbar .navtitle {
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--desc);
+}
+
+#navbar input[checked] + label .navtitle {
+  color: var(--font);
+  font-weight: 600;
 }

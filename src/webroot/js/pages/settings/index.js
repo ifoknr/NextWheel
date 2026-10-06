@@ -49,4 +49,21 @@ export async function load() {
 
     fullScreen(!WebUIConfig.disableFullscreen)
   })
+
+  /* INFO: The WebView can't follow external links itself, so ask Android to open
+             the developer's page in the browser. URLs come from our own HTML. */
+  document.querySelectorAll('[credit-link]').forEach((credit) => {
+    utils.addListener(credit, 'click', async () => {
+      const url = credit.getAttribute('credit-link')
+
+      if (typeof ksu === 'undefined') {
+        window.open(url, '_blank')
+
+        return;
+      }
+
+      const result = await exec(`am start -a android.intent.action.VIEW -d '${url}'`)
+      if (result.errno !== 0) toast(url)
+    })
+  })
 }

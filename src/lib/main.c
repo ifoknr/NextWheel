@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include <errno.h>
 #include <dlfcn.h>
 #include <time.h>
@@ -18,6 +19,7 @@
 #include <sys/socket.h>
 
 #include <sched.h>
+#include <signal.h>
 #include <unistd.h>
 #include <pthread.h>
 
@@ -118,18 +120,18 @@ void preSpecialize(const char *process_name) {
   LOGI("Checking if module is set to be ignoring.");
 
   if (read_loop(cfd, &g_state, sizeof(g_state)) == -1) {
-    LOGI("Failed to read state, requested to dlclose Treat Wheel.");
+    LOGI("Failed to read state, requested to dlclose NextWheel.");
 
     g_state.is_ignoring = true;
 
     return;
   }
 
-  /* INFO: Ignore everyone and everything will make Treat Wheel completely disappear and behave like
+  /* INFO: Ignore everyone and everything will make NextWheel completely disappear and behave like
               it never existed.
   */
   if (g_state.is_ignoring) {
-    LOGI("Module is set to be ignoring, requested to dlclose Treat Wheel.");
+    LOGI("Module is set to be ignoring, requested to dlclose NextWheel.");
 
     return;
   }
@@ -181,7 +183,7 @@ void preAppSpecialize(void *mod_data, struct AppSpecializeArgs *args) {
   preSpecialize(process);
   (*tw_env)->ReleaseStringUTFChars(tw_env, *args->nice_name, process);
 
-  LOGD("Now setting custom unmap hook to hide Treat Wheel's library");
+  LOGD("Now setting custom unmap hook to hide NextWheel's library");
   api_table->pltHookRegister(rz_dev, rz_ino, "munmap", (void *)my_munmap, NULL);
   api_table->pltHookCommit();
 
@@ -220,7 +222,7 @@ void preServerSpecialize(void *mod_data, struct ServerSpecializeArgs *args) {
 
   close(cfd);
 
-  LOGD("Successfully initialized Treat Wheel daemon.");
+  LOGD("Successfully initialized NextWheel daemon.");
 }
 
 void postAppSpecialize(void *mod_data, const struct AppSpecializeArgs *args) {
@@ -256,7 +258,7 @@ __attribute__((constructor)) static void tw_initialization(void) {
   }
 
   if (rz_dev == 0 || rz_ino == 0) {
-    LOGE("Failed to find ReZygisk's library in maps, requested to dlclose Treat Wheel.");
+    LOGE("Failed to find ReZygisk's library in maps, requested to dlclose NextWheel.");
 
     g_state.is_ignoring = true;
 
@@ -265,9 +267,9 @@ __attribute__((constructor)) static void tw_initialization(void) {
     return;
   }
 
-  tw_info = tw_get_mem_info();
+  tw_info = tw_get_mem_info(maps);
 
-  LOGD("Treat Wheel memory region: start=%p, size=%zu", (void *)tw_info.start, tw_info.size);
+  LOGD("NextWheel memory region: start=%p, size=%zu", (void *)tw_info.start, tw_info.size);
 }
 
 void zygisk_module_entry(struct api_table *table, JNIEnv *env) {
@@ -287,9 +289,17 @@ void zygisk_module_entry(struct api_table *table, JNIEnv *env) {
 
 static bool has_crashed = false;
 
-/* INFO: mnt string caching system */
+/* INFO: Processes that died after starting NextWheel's hiding but before finishing it.
+           One death can be Android killing an app while it starts; NextWheel breaking
+           apps kills many, so only a few of them in one boot count as a crash. */
+#define TW_DEATHS_FOR_CRASH 3
+static size_t died_mid_hiding = 0;
+
+/* INFO: mnt string caching system. Every app gets its own companion thread, so the
+           string is only published, under the lock, once it was fully received. */
 static char mnt_string[1024] = { 0 };
 static char *mnt_line = NULL;
+static pthread_mutex_t mnt_string_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /* INFO: RVU system */
 static char **rvx_mounts = NULL;
@@ -309,6 +319,159 @@ static struct tw_process_state *process_states = NULL;
 static size_t process_states_size = 0;
 static pthread_mutex_t process_states_lock = PTHREAD_MUTEX_INITIALIZER;
 
+/* INFO: state file caching system. The state file is read on every app spawn
+           (DAEMON_CHECK_IGNORING); it almost never changes, so cache the parsed
+           result and only re-read when the file's inode, size or mtime changes. */
+static struct module_state cached_state = { 0 };
+static bool has_cached_state = false;
+static struct stat cached_state_st;
+static pthread_mutex_t state_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static bool same_state_file(const struct stat *a, const struct stat *b) {
+  return a->st_dev == b->st_dev && a->st_ino == b->st_ino && a->st_size == b->st_size &&
+         a->st_mtim.tv_sec == b->st_mtim.tv_sec && a->st_mtim.tv_nsec == b->st_mtim.tv_nsec;
+}
+
+/* INFO: The kernel updates mtime with a coarse clock, so two writes close together
+           can share one mtime. Only cache a file whose mtime is more than a second
+           old, so a write that lands in the same tick is never missed. */
+static bool state_file_settled(const struct stat *st) {
+  struct timespec now;
+  if (clock_gettime(CLOCK_REALTIME, &now) == -1) return false;
+
+  return now.tv_sec - st->st_mtim.tv_sec >= 2;
+}
+
+static int parse_state_file(struct module_state *state) {
+  FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
+  if (!fp) {
+    PLOGE("Open state file");
+
+    return -1;
+  }
+
+  memset(state, 0, sizeof(*state));
+
+  static const struct { const char *key; size_t off; } fields[] = {
+    { "ignoring",                             offsetof(struct module_state, is_ignoring) },
+    { "disable_prop_spoofing",                offsetof(struct module_state, disable_prop_spoofing) },
+    { "disable_gsi_hiding",                   offsetof(struct module_state, disable_gsi_hiding) },
+    { "disable_zygote_mountinfo_leak_fixing", offsetof(struct module_state, disable_zygote_mountinfo_leak_fixing) },
+    { "disable_maps_hiding",                  offsetof(struct module_state, disable_maps_hiding) },
+    { "disable_revanced_mounts_umount",       offsetof(struct module_state, disable_revanced_mounts_umount) },
+    { "disable_custom_font_loading",          offsetof(struct module_state, disable_custom_font_loading) },
+    { "disable_denylist_logic_inversion",     offsetof(struct module_state, disable_denylist_logic_inversion) },
+    { "disable_module_loading_traces_hiding", offsetof(struct module_state, disable_module_loading_traces_hiding) },
+    { "disable_frida_traces_hiding",          offsetof(struct module_state, disable_frida_traces_hiding) }
+  };
+
+  char line[128];
+  while (fgets(line, sizeof(line), fp)) {
+    for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+      size_t key_len = strlen(fields[i].key);
+      if (strncmp(line, fields[i].key, key_len) != 0 || line[key_len] != '=') continue;
+
+      bool value = strncmp(line + key_len + 1, "true", strlen("true")) == 0;
+      *(bool *)((char *)state + fields[i].off) = value;
+
+      LOGI("Found %s state: %d", fields[i].key, value);
+
+      break;
+    }
+  }
+
+  fclose(fp);
+
+  return 0;
+}
+
+/* INFO: Custom font caching system. Module fonts only change on reboot, so scan
+           /data/adb/modules once, keep the fds open (O_CLOEXEC), and re-send them
+           on every spawn instead of re-walking every module and re-opening every
+           font file. */
+static int *cached_font_fds = NULL;
+static size_t cached_fonts_length = 0;
+static bool fonts_scanned = false;
+static pthread_mutex_t fonts_lock = PTHREAD_MUTEX_INITIALIZER;
+
+/* INFO: Returns 0 on success (*out_len may be 0), -1 on hard failure. */
+static int scan_fonts(int **out_fds, size_t *out_len) {
+  DIR *dir = opendir("/data/adb/modules");
+  if (!dir) {
+    PLOGE("Open /data/adb/modules");
+
+    return -1;
+  }
+
+  int *fonts_fds = NULL;
+  size_t fonts_length = 0;
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (entry->d_type != DT_DIR || str_equal(entry->d_name, ".") || str_equal(entry->d_name, "..")) continue;
+
+    char path[PATH_MAX];
+    snprintf(path, sizeof(path), "/data/adb/modules/%s/disable", entry->d_name);
+
+    if (access(path, F_OK) == 0) {
+      LOGI("Module %s is disabled, skipping.", entry->d_name);
+
+      continue;
+    }
+
+    static const char *font_subdirs[] = { "system/fonts", "product/fonts" };
+    for (size_t i = 0; i < sizeof(font_subdirs) / sizeof(font_subdirs[0]); i++) {
+      snprintf(path, sizeof(path), "/data/adb/modules/%s/%s", entry->d_name, font_subdirs[i]);
+
+      DIR *fonts_dir = opendir(path);
+      if (!fonts_dir) continue;
+
+      struct dirent *font_entry;
+      while ((font_entry = readdir(fonts_dir)) != NULL) {
+        if (font_entry->d_type != DT_REG) continue;
+
+        char font_file[PATH_MAX];
+        snprintf(font_file, sizeof(font_file), "%s/%s", path, font_entry->d_name);
+
+        LOGD("Found font file: %s", font_file);
+
+        int fd = open(font_file, O_RDONLY | O_CLOEXEC);
+        if (fd == -1) {
+          PLOGE("Open font file");
+
+          continue;
+        }
+
+        int *tmp_fonts_fds = realloc(fonts_fds, sizeof(int) * (fonts_length + 1));
+        if (!tmp_fonts_fds) {
+          PLOGE("Failed to allocate memory for fonts_fds");
+
+          close(fd);
+          closedir(fonts_dir);
+          closedir(dir);
+
+          for (size_t j = 0; j < fonts_length; j++) close(fonts_fds[j]);
+          free(fonts_fds);
+
+          return -1;
+        }
+        fonts_fds = tmp_fonts_fds;
+
+        fonts_fds[fonts_length++] = fd;
+      }
+
+      closedir(fonts_dir);
+    }
+  }
+
+  closedir(dir);
+
+  *out_fds = fonts_fds;
+  *out_len = fonts_length;
+
+  return 0;
+}
+
 void zygisk_companion_entry(int module_fd) {
   while (1) {
     enum daemon_operations op;
@@ -323,138 +486,63 @@ void zygisk_companion_entry(int module_fd) {
     }
 
     if (op == DAEMON_CHECK_IGNORING) {
-      FILE *fp = fopen("/data/adb/treat_wheel/state", "r");
-      if (!fp) {
-        PLOGE("Open state file");
+      struct module_state state;
+      struct stat st;
+      bool have_stat = stat("/data/adb/treat_wheel/state", &st) == 0;
+      bool got_cached = false;
 
-        goto cleanup;
+      /* INFO: Serve from cache when the file is unchanged since last parse. */
+      if (have_stat) {
+        pthread_mutex_lock(&state_lock);
+        if (has_cached_state && same_state_file(&cached_state_st, &st)) {
+          state = cached_state;
+          got_cached = true;
+        }
+        pthread_mutex_unlock(&state_lock);
       }
 
-      struct module_state state = { 0 };
+      if (!got_cached) {
+        if (parse_state_file(&state) == -1) {
+          goto cleanup;
+        }
 
-      char line[128];
-      while (fgets(line, sizeof(line), fp)) {
-        if (str_starts_with(line, "ignoring=")) {
-          state.is_ignoring = strncmp(line + strlen("ignoring="), "true", strlen("true")) == 0;
-
-          LOGI("Found ignoring state: %d", state.is_ignoring);
-        } else if (str_starts_with(line, "disable_prop_spoofing=")) {
-          state.disable_prop_spoofing = strncmp(line + strlen("disable_prop_spoofing="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_prop_spoofing state: %d", state.disable_prop_spoofing);
-        } else if (str_starts_with(line, "disable_gsi_hiding=")) {
-          state.disable_gsi_hiding = strncmp(line + strlen("disable_gsi_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_gsi_hiding state: %d", state.disable_gsi_hiding);
-        } else if (str_starts_with(line, "disable_zygote_mountinfo_leak_fixing=")) {
-          state.disable_zygote_mountinfo_leak_fixing = strncmp(line + strlen("disable_zygote_mountinfo_leak_fixing="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_zygote_mountinfo_leak_fixing state: %d", state.disable_zygote_mountinfo_leak_fixing);
-        } else if (str_starts_with(line, "disable_maps_hiding=")) {
-          state.disable_maps_hiding = strncmp(line + strlen("disable_maps_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_maps_hiding state: %d", state.disable_maps_hiding);
-        } else if (str_starts_with(line, "disable_revanced_mounts_umount=")) {
-          state.disable_revanced_mounts_umount = strncmp(line + strlen("disable_revanced_mounts_umount="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_revanced_mounts_umount state: %d", state.disable_revanced_mounts_umount);
-        } else if (str_starts_with(line, "disable_custom_font_loading=")) {
-          state.disable_custom_font_loading = strncmp(line + strlen("disable_custom_font_loading="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_custom_font_loading state: %d", state.disable_custom_font_loading);
-        } else if (str_starts_with(line, "disable_denylist_logic_inversion=")) {
-          state.disable_denylist_logic_inversion = strncmp(line + strlen("disable_denylist_logic_inversion="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_denylist_logic_inversion state: %d", state.disable_denylist_logic_inversion);
-        } else if (str_starts_with(line, "disable_module_loading_traces_hiding=")) {
-          state.disable_module_loading_traces_hiding = strncmp(line + strlen("disable_module_loading_traces_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_module_loading_traces_hiding state: %d", state.disable_module_loading_traces_hiding);
-        } else if (str_starts_with(line, "disable_frida_traces_hiding=")) {
-          state.disable_frida_traces_hiding = strncmp(line + strlen("disable_frida_traces_hiding="), "true", strlen("true")) == 0;
-
-          LOGI("Found disable_frida_traces_hiding state: %d", state.disable_frida_traces_hiding);
+        if (have_stat && state_file_settled(&st)) {
+          pthread_mutex_lock(&state_lock);
+          cached_state = state;
+          cached_state_st = st;
+          has_cached_state = true;
+          pthread_mutex_unlock(&state_lock);
         }
       }
-
-      fclose(fp);
 
       write_loop(module_fd, &state, sizeof(state));
     } else if (op == DAEMON_CHECK_FONTS) {
-      DIR *dir = opendir("/data/adb/modules");
-      if (!dir) {
-        PLOGE("Open /data/adb/modules");
+      /* INFO: Scan once and cache the open fds; re-send them on later spawns. */
+      pthread_mutex_lock(&fonts_lock);
+      if (!fonts_scanned) {
+        int *fds = NULL;
+        size_t len = 0;
 
-        uint8_t ret_state = 0;
-        write_loop(module_fd, &ret_state, sizeof(ret_state));
+        if (scan_fonts(&fds, &len) == -1) {
+          pthread_mutex_unlock(&fonts_lock);
 
-        goto cleanup;
-      }
+          uint8_t ret_state = 0;
+          write_loop(module_fd, &ret_state, sizeof(ret_state));
 
-      int *fonts_fds = NULL;
-      size_t fonts_length = 0;
-
-      struct dirent *entry;
-      while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_type != DT_DIR || str_equal(entry->d_name, ".") || str_equal(entry->d_name, "..")) continue;
-
-        char path[PATH_MAX];
-        snprintf(path, sizeof(path), "/data/adb/modules/%s/disable", entry->d_name);
-
-        if (access(path, F_OK) == 0) {
-          LOGI("Module %s is disabled, skipping.", entry->d_name);
-
-          continue;
+          goto cleanup;
         }
 
-        static const char *font_subdirs[] = { "system/fonts", "product/fonts" };
-        for (size_t i = 0; i < sizeof(font_subdirs) / sizeof(font_subdirs[0]); i++) {
-          snprintf(path, sizeof(path), "/data/adb/modules/%s/%s", entry->d_name, font_subdirs[i]);
+        cached_font_fds = fds;
+        cached_fonts_length = len;
+        fonts_scanned = true;
 
-          DIR *fonts_dir = opendir(path);
-          if (!fonts_dir) continue;
-
-          struct dirent *font_entry;
-          while ((font_entry = readdir(fonts_dir)) != NULL) {
-            if (font_entry->d_type != DT_REG) continue;
-
-            char font_file[PATH_MAX];
-            snprintf(font_file, sizeof(font_file), "%s/%s", path, font_entry->d_name);
-
-            LOGD("Found font file: %s", font_file);
-
-            int fd = open(font_file, O_RDONLY | O_CLOEXEC);
-            if (fd == -1) {
-              PLOGE("Open font file");
-
-              continue;
-            }
-
-            int *tmp_fonts_fds = realloc(fonts_fds, sizeof(int) * (fonts_length + 1));
-            if (!tmp_fonts_fds) {
-              PLOGE("Failed to allocate memory for fonts_fds");
-
-              close(fd);
-              closedir(fonts_dir);
-              closedir(dir);
-
-              free(fonts_fds);
-
-              uint8_t ret_state = 0;
-              write_loop(module_fd, &ret_state, sizeof(ret_state));
-
-              goto cleanup;
-            }
-            fonts_fds = tmp_fonts_fds;
-
-            fonts_fds[fonts_length++] = fd;
-          }
-
-          closedir(fonts_dir);
-        }
+        LOGI("Scanned and cached %zu fonts.", len);
       }
 
-      closedir(dir);
+      /* INFO: Immutable after the first scan, so safe to use outside the lock. */
+      int *fonts_fds = cached_font_fds;
+      size_t fonts_length = cached_fonts_length;
+      pthread_mutex_unlock(&fonts_lock);
 
       uint8_t ret_state = fonts_length != 0 ? 1 : 0;
       write_loop(module_fd, &ret_state, sizeof(ret_state));
@@ -470,11 +558,7 @@ void zygisk_companion_entry(int module_fd) {
       if (write_loop(module_fd, &fonts_length, sizeof(fonts_length)) == -1) {
         PLOGE("Write fonts length");
 
-        for (size_t i = 0; i < fonts_length; i++) {
-          close(fonts_fds[i]);
-        }
-        free(fonts_fds);
-
+        /* INFO: Cached fds are kept open for reuse; do not close them here. */
         goto cleanup;
       }
 
@@ -483,11 +567,8 @@ void zygisk_companion_entry(int module_fd) {
           PLOGE("Write font fd");
         }
 
-        /* Close the local FD after sending it to avoid leaking file descriptors in the companion process. */
-        close(fonts_fds[i]);
+        /* INFO: Do NOT close; fds are cached and re-sent on later spawns. */
       }
-
-      free(fonts_fds);
 
       LOGI("Finished sending fonts to be loaded.");
     } else if (op == DAEMON_CHECK_POINT) {
@@ -506,33 +587,61 @@ void zygisk_companion_entry(int module_fd) {
       }
 
       if (has_crashed) {
-        LOGW("Treat Wheel has crashed, refusing to set new state.");
+        LOGW("NextWheel has crashed, refusing to set new state.");
 
         continue;
       }
 
-      /* INFO: Check if timestamp was more than 3s for any existing ones */
+      /* INFO: Look for processes that started hiding more than 30s ago without finishing.
+                 One still alive is stuck in NextWheel's code: a crash. One that is gone
+                 died while hiding, which a single kill by Android also explains, so it is
+                 dropped and only counted. */
       pthread_mutex_lock(&process_states_lock);
-      for (size_t i = 0; i < process_states_size; i++) {
-        time_t time_now = mono_sec_now();
+      time_t time_now = mono_sec_now();
+      for (size_t i = 0; i < process_states_size;) {
+        if (time_now - process_states[i].opened_at <= 30 || process_states[i].performed_hiding) {
+          i++;
 
-        if (time_now - process_states[i].opened_at > 30 && !process_states[i].performed_hiding) {
-          LOGE("Process %d has been opened for more than 30 seconds (%d seconds), assuming it has crashed.", process_states[i].pid, (int)(time_now - process_states[i].opened_at));
-
-          free(process_states);
-          process_states = NULL;
-          process_states_size = 0;
-
-          has_crashed = true;
-
-          break;
+          continue;
         }
+
+        if (kill((pid_t)process_states[i].pid, 0) == -1 && errno == ESRCH) {
+          died_mid_hiding++;
+
+          LOGW("Process %d died while hiding (%zu so far this boot).", process_states[i].pid, died_mid_hiding);
+
+          process_states[i] = process_states[process_states_size - 1];
+          process_states_size--;
+
+          if (died_mid_hiding >= TW_DEATHS_FOR_CRASH) {
+            LOGE("%zu processes died while hiding, assuming NextWheel has crashed.", died_mid_hiding);
+
+            has_crashed = true;
+          }
+
+          continue;
+        }
+
+        LOGE("Process %d has been stuck in hiding for more than 30 seconds (%d seconds), assuming it has crashed.", process_states[i].pid, (int)(time_now - process_states[i].opened_at));
+
+        has_crashed = true;
+
+        break;
+      }
+
+      if (has_crashed) {
+        free(process_states);
+        process_states = NULL;
+        process_states_size = 0;
+      } else if (process_states_size == 0 && process_states) {
+        free(process_states);
+        process_states = NULL;
       }
 
       pthread_mutex_unlock(&process_states_lock);
 
       if (has_crashed) {
-        LOGE("Treat Wheel has crashed, setting proper state.");
+        LOGE("NextWheel has crashed, setting proper state.");
 
         pthread_mutex_lock(&process_states_lock);
 
@@ -570,7 +679,7 @@ void zygisk_companion_entry(int module_fd) {
         for (; i < process_states_size; i++) {
           if (process_states[i].pid != ppid) continue;
 
-          LOGD("Found process now finalized in Treat Wheel execution with pid %d, removing. Now, %zu process being tracked.", ppid, process_states_size - 1);
+          LOGD("Found process now finalized in NextWheel execution with pid %d, removing. Now, %zu process being tracked.", ppid, process_states_size - 1);
 
           found = &process_states[i];
 
@@ -641,7 +750,7 @@ void zygisk_companion_entry(int module_fd) {
 
           process_states[i].performed_hiding = true;
 
-          LOGD("Updated state for process with pid %d in Treat Wheel execution.", ppid);
+          LOGD("Updated state for process with pid %d in NextWheel execution.", ppid);
 
           break;
         }
@@ -667,27 +776,53 @@ void zygisk_companion_entry(int module_fd) {
         process_states[process_states_size].opened_at = mono_sec_now();
         process_states_size++;
 
-        LOGD("Started now Treat Wheel execution for process with pid %d. Now, %zu processes are being tracked.", ppid, process_states_size);
+        LOGD("Started now NextWheel execution for process with pid %d. Now, %zu processes are being tracked.", ppid, process_states_size);
 
         pthread_mutex_unlock(&process_states_lock);
       }
     } else if (op == DAEMON_GET_MNT_STRING) {
-      if (mnt_string[0] == '\0') {
+      /* INFO: Snapshot under the lock, so a string being received by another thread
+                 is never sent half written. */
+      char cached_string[sizeof(mnt_string)];
+      char *cached_line = NULL;
+
+      pthread_mutex_lock(&mnt_string_lock);
+      bool have_string = mnt_line != NULL && mnt_string[0] != '\0';
+      if (have_string) {
+        memcpy(cached_string, mnt_string, sizeof(cached_string));
+        cached_line = mnt_line;
+      }
+      pthread_mutex_unlock(&mnt_string_lock);
+
+      if (!have_string) {
         /* INFO: First process to hide it, so ask to provide the mnt string */
         uint8_t ret_state = 0;
         write_loop(module_fd, &ret_state, sizeof(ret_state));
 
-        if (read_loop(module_fd, &mnt_line, sizeof(mnt_line)) == -1) {
+        char *received_line = NULL;
+        if (read_loop(module_fd, &received_line, sizeof(received_line)) == -1) {
           PLOGE("Read mnt_line");
 
           goto cleanup;
         }
 
-        if (read_loop(module_fd, mnt_string, sizeof(mnt_string)) == -1) {
+        char received_string[sizeof(mnt_string)];
+        if (read_loop(module_fd, received_string, sizeof(received_string)) == -1) {
           PLOGE("Read mnt_string");
 
           goto cleanup;
         }
+
+        /* INFO: A process that failed to read it sends a NULL line. Keep waiting for
+                   one that succeeds instead of caching nothing. */
+        if (received_line == NULL || received_string[0] == '\0') continue;
+
+        pthread_mutex_lock(&mnt_string_lock);
+        if (mnt_line == NULL) {
+          memcpy(mnt_string, received_string, sizeof(mnt_string));
+          mnt_line = received_line;
+        }
+        pthread_mutex_unlock(&mnt_string_lock);
 
         continue;
       }
@@ -697,14 +832,14 @@ void zygisk_companion_entry(int module_fd) {
       write_loop(module_fd, &ret_state, sizeof(ret_state));
 
       /* INFO: The address of the mnt line */
-      if (write_loop(module_fd, &mnt_line, sizeof(mnt_line)) == -1) {
+      if (write_loop(module_fd, &cached_line, sizeof(cached_line)) == -1) {
         PLOGE("Write mnt_line");
 
         goto cleanup;
       }
 
       /* INFO: The content of the mnt line */
-      if (write_loop(module_fd, mnt_string, sizeof(mnt_string)) == -1) {
+      if (write_loop(module_fd, cached_string, sizeof(cached_string)) == -1) {
         PLOGE("Write mnt_string");
 
         goto cleanup;

@@ -21,11 +21,9 @@
 #include "utils.h"
 
 bool str_starts_with(const char *str, const char *needle) {
-  size_t needle_len = strlen(needle);
-
-  if (needle_len > strlen(str)) return false;
-
-  return strncmp(str, needle, needle_len) == 0;
+  /* INFO: strncmp stops at str's NUL, so a str shorter than needle compares
+             unequal without walking the whole string first. */
+  return strncmp(str, needle, strlen(needle)) == 0;
 }
 
 bool str_ends_with(const char *str, const char *needle) {
@@ -178,6 +176,7 @@ struct maps *parse_maps(const char *filename) {
   maps->maps = NULL;
 
   size_t i = 0;
+  size_t capacity = 0;
   while (1) {
     #define READ_AND_ASSURE(field)                                                                                \
       if (read_loop(read_fd, &maps->maps[i].field, sizeof(maps->maps[i].field)) != sizeof(maps->maps[i].field)) { \
@@ -195,11 +194,19 @@ struct maps *parse_maps(const char *filename) {
 
     if (!has_more_maps) break;
 
-    maps->maps = (struct map *)realloc(maps->maps, (i + 1) * sizeof(struct map));
-    if (!maps->maps) {
-      PLOGE("Realloc maps");
+    /* INFO: Grow the array geometrically to avoid O(n^2) reallocations over
+               the hundreds/thousands of entries in /proc/self/maps. */
+    if (i == capacity) {
+      size_t new_capacity = capacity == 0 ? 64 : capacity * 2;
+      struct map *tmp = (struct map *)realloc(maps->maps, new_capacity * sizeof(struct map));
+      if (!tmp) {
+        PLOGE("Realloc maps");
 
-      goto maps_read_fail;
+        goto maps_read_fail;
+      }
+
+      maps->maps = tmp;
+      capacity = new_capacity;
     }
 
     READ_AND_ASSURE(addr_start);
@@ -255,6 +262,13 @@ struct maps *parse_maps(const char *filename) {
   }
 
   maps->size = i;
+
+  /* INFO: Shrink to fit so the long-lived global maps don't hold the
+             geometric over-allocation. Best-effort; keep the buffer on failure. */
+  if (i > 0 && i < capacity) {
+    struct map *tmp = (struct map *)realloc(maps->maps, i * sizeof(struct map));
+    if (tmp) maps->maps = tmp;
+  }
 
   waitpid(new_pid, NULL, 0);
 
@@ -445,6 +459,7 @@ struct mountsinfo *parse_mountinfo(const char *filename) {
   mounts->mounts = NULL;
 
   size_t i = 0;
+  size_t capacity = 0;
   while (1) {
     #define READ_AND_ASSURE(field)                                                                                            \
       if (read_loop(read_fd, &mounts->mounts[i].field, sizeof(mounts->mounts[i].field)) != sizeof(mounts->mounts[i].field)) { \
@@ -519,17 +534,25 @@ struct mountsinfo *parse_mountinfo(const char *filename) {
 
     if (!has_more_maps) break;
 
-    mounts->mounts = (struct mountinfo *)realloc(mounts->mounts, (i + 1) * sizeof(struct mountinfo));
-    if (!mounts->mounts) {
-      PLOGE("Allocate memory for mounts->mounts");
+    /* INFO: Grow geometrically to avoid O(n^2) reallocations over the many
+               entries in /proc/self/mountinfo. */
+    if (i == capacity) {
+      size_t new_capacity = capacity == 0 ? 64 : capacity * 2;
+      struct mountinfo *tmp = (struct mountinfo *)realloc(mounts->mounts, new_capacity * sizeof(struct mountinfo));
+      if (!tmp) {
+        PLOGE("Allocate memory for mounts->mounts");
 
-      close(write_fd);
-      close(read_fd);
+        close(write_fd);
+        close(read_fd);
 
-      mounts->size = i;
-      free_mountsinfo(mounts);
+        mounts->size = i;
+        free_mountsinfo(mounts);
 
-      return NULL;
+        return NULL;
+      }
+
+      mounts->mounts = tmp;
+      capacity = new_capacity;
     }
 
     READ_AND_ASSURE(id);
@@ -594,6 +617,12 @@ struct mountsinfo *parse_mountinfo(const char *filename) {
   }
 
   mounts->size = i;
+
+  /* INFO: Shrink to fit; best-effort, keep the buffer on failure. */
+  if (i > 0 && i < capacity) {
+    struct mountinfo *tmp = (struct mountinfo *)realloc(mounts->mounts, i * sizeof(struct mountinfo));
+    if (tmp) mounts->mounts = tmp;
+  }
 
   waitpid(new_pid, NULL, 0);
 
@@ -838,7 +867,7 @@ static void *_page_end(uintptr_t addr) {
   return (void *)((addr + getpagesize() - 1) & ~(getpagesize() - 1));
 }
 
-struct tw_mem_info tw_get_mem_info(void) {
+struct tw_mem_info tw_get_mem_info(struct maps *maps) {
   #ifdef __aarch64__
     int fd = open("/data/adb/modules/treat_wheel/zygisk/arm64-v8a.so", O_RDONLY);
   #elif defined(__arm__)
@@ -882,9 +911,10 @@ struct tw_mem_info tw_get_mem_info(void) {
 
   close(fd);
 
-  struct maps *maps = parse_maps("/proc/self/maps");
+  /* INFO: Caller owns `maps` (reused from the global parse done at init), so it is
+             neither parsed again here nor freed. */
   if (!maps) {
-    LOGE("Failed to parse maps");
+    LOGE("No maps provided");
 
     return (struct tw_mem_info) { 0 };
   }
@@ -898,8 +928,6 @@ struct tw_mem_info tw_get_mem_info(void) {
 
     break;
   }
-
-  free_maps(maps);
 
   return (struct tw_mem_info) {
     .start = (uintptr_t)tw_mem_start,

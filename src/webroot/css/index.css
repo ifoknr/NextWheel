@@ -1,21 +1,39 @@
 :root {
-  --background: #141414;
-  --font: #fff;
-  --desc: #c9c9c9;
+  --background: #0a0b0d;
+  --font: #f3f5f8;
+  --desc: #8b93a0;
   --bright: #8d1d19;
-  --dim: #1c1c1c;
-  --dim-brigther: #3d3d3d;
+  --dim: #141518;
+  --dim-brigther: #23262d;
   --icon: #494949;
-  --icon-bc: #292929;
+  --icon-bc: #16181c;
   --small-card: var(--icon-bc);
-  --button: var(--background);
-  --button-enabled: #535353;
-  --desktop-navbar: #252525;
-  --desktop-navicon: #3a3a3a;
+  --button: #3a3f49;
+  --button-enabled: #34d399;
+  --desktop-navbar: #15181d;
+  --desktop-navicon: #232833;
+
+  /* Accent palette (shared by home dashboard + actions) */
+  --card: #141518;
+  --card-line: #23262d;
+  --faint: #6a7280;
+  --green: #34d399;
+  --amber: #f3a93a;
+  --red: #f05252;
+  --blue: #5b8cff;
 
   /* Locked Color */
   --lock: #fff;
-  --font-family: 'Outfit', sans-serif;
+  /* INFO: Orbitron for English text, Roboto for Cyrillic, Noto Kufi Arabic for Arabic. All
+            are bundled in fonts/ (see fonts/fonts.css), as the WebUI runs offline in the
+            root manager. */
+  --font-family: 'Orbitron', 'Roboto', 'Noto Kufi Arabic', sans-serif;
+}
+
+/* INFO: Orbitron has no glyphs for some Polish, Turkish and Vietnamese letters, which
+           would make words mix two fonts. pageLoader.js sets data-font for those languages. */
+:root[data-font="roboto"] {
+  --font-family: 'Roboto', 'Noto Kufi Arabic', sans-serif;
 }
 
 * {
@@ -46,7 +64,7 @@ a {
   top: 0;
   inset-inline: 0;
   padding: 20px 20px;
-  font-size: 20px;
+  font-size: 18px;
   border-bottom: #585b5d solid 1px;
   z-index: 5;
 }
@@ -55,6 +73,39 @@ a {
   display: block;
   animation: fade-in 0.2s;
   margin-bottom: 120px;
+}
+
+/* INFO: Actions and settings fill the screen: one column on phones, cards side by
+           side on tablets and large screens. */
+@media (min-width: 900px) {
+  .tw_list {
+    --tw-gutter: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    column-gap: 16px;
+    padding-inline: var(--tw-gutter);
+  }
+
+  .tw_list > :not(.small_card):not(.card) {
+    grid-column: 1 / -1;
+  }
+
+  .tw_list > .header {
+    margin-inline: calc(-1 * var(--tw-gutter));
+    padding-inline: calc(var(--tw-gutter) + 4px);
+  }
+
+  .tw_list > .small_card,
+  .tw_list > .card {
+    margin: 0 0 16px 0 !important;
+  }
+}
+
+@media (min-width: 1500px) {
+  .tw_list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .card {

@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/auxv.h>
+#include <sys/mman.h>
 
 #include <unistd.h>
 
@@ -147,7 +148,7 @@ void elf_destroy(struct elf_img *img) {
   }
 
   if (img->header) {
-    free(img->header);
+    munmap(img->header, img->size);
     img->header = NULL;
   }
 
@@ -220,22 +221,16 @@ struct elf_img *elf_create(const char *elf, void *base) {
     return NULL;
   }
 
-  img->header = (ElfW(Ehdr) *)malloc(img->size);
-  if (!img->header) {
-    LOGE("malloc() failed for %s", img->elf);
-
-    close(fd);
-    elf_destroy(img);
-
-    return NULL;
-  }
-
-  ssize_t bytes_read = read(fd, img->header, img->size);
+  /* INFO: mmap the file read-only instead of malloc+read. This avoids copying the
+             entire libc.so/linker (megabytes) into the heap on every process, pages
+             in lazily, and shares the pages across processes via the page cache. */
+  img->header = (ElfW(Ehdr) *)mmap(NULL, img->size, PROT_READ, MAP_PRIVATE, fd, 0);
   close(fd);
 
-  if (bytes_read != (ssize_t)img->size) {
-    LOGE("read() failed for %s (read %zd of %zu bytes)", img->elf, bytes_read, img->size);
+  if (img->header == MAP_FAILED) {
+    LOGE("mmap() failed for %s", img->elf);
 
+    img->header = NULL;
     elf_destroy(img);
 
     return NULL;

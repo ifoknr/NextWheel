@@ -1,42 +1,40 @@
-<!-- INFO: Home page -->
-<div id="panel_home" class="panel">
-  <div class="header">Treat Wheel</div>
-  <div style="padding: 10px 0px;"></div>
-
-  <!-- INFO: Status card -->
-  <div id="info_card" class="bright card list">
-    <div class="brightc" style="display: flex; align-items: center;">
-      <div id="tw_icon_state" class="brightc" style="display: flex; align-items: center;">
-        <img class="brightc" src="assets/mark.svg">
-      </div>
-
-      <div id="tw_state" class="brightc lock" style="font-size: 1.2em; padding-left: 15px;">
-        {{workingModes.unknown}}
-      </div>
+<!-- INFO: Home page (redesigned dashboard) -->
+<div id="panel_home" class="panel tw_home">
+  <div class="tw_hdr">
+    <div class="tw_hdr_l">
+      <div class="tw_brand">NextWheel</div>
+      <div class="tw_updated" id="tw_updated"></div>
+    </div>
+    <div class="tw_refresh" id="tw_refresh" role="button" aria-label="Refresh">
+      <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
     </div>
   </div>
 
-  <div id="ci_warning" class="bright card list" style="--bright: red; display: none;">
-    <div class="brightc" style="display: flex; align-items: center;">
-      <div id="tw_icon_state" class="brightc" style="display: flex; align-items: center;">
-        <img class="brightc" src="assets/mark.svg">
-      </div>
-
-      <div id="tw_state" class="brightc lock" style="font-size: 1em; padding-left: 15px;">
-        {{workingModes.ciBuild}}
-      </div>
+  <!-- INFO: Status hero -->
+  <div class="tw_hero tw_neutral" id="tw_hero">
+    <div class="tw_ring" id="tw_ring"><div class="tw_ring_ic" id="tw_ring_ic"></div></div>
+    <div class="tw_hbody">
+      <div class="tw_htitle" id="tw_state">{{workingModes.unknown}}</div>
+      <div class="tw_hsub" id="tw_hsub"></div>
+      <div class="tw_chips" id="tw_chips"></div>
     </div>
   </div>
 
-  <!-- INFO: Info card -->
-  <div class="dim card">
-    <div class="dimc content">
-      <div id="version_info_title" class="dimc" style="font-size: 1.1em">{{version}}</div>
-      <div class="dimc desc" id="version_code" style="font-size: 0.9em; margin-top: 3px;">{{unknown}}</div>
-    </div>
-    <div class="dimc content" style="margin-top: 4px;">
-      <div id="root_info_title" class="dimc" style="font-size: 1.1em">{{rootImpl}}</div>
-      <div class="dimc desc" id="root_impl" style="font-size: 0.9em; margin-top: 3px;">{{unknown}}</div>
-    </div>
+  <!-- INFO: Experimental build warning. CI builds strip " display: none;" to show it. -->
+  <div class="tw_alert warn" id="ci_warning" style="margin-bottom: 11px; display: none;">
+    <div class="tw_alert_ic"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3zM12 10v4M12 17v.5"/></svg></div>
+    <div class="tw_alert_tx"><div class="tw_alert_d">{{workingModes.ciBuild}}</div></div>
   </div>
+
+  <!-- INFO: Contextual alert (incompatible modules / crash / disabled count) -->
+  <div class="tw_alert" id="tw_banner" style="display: none;">
+    <div class="tw_alert_ic" id="tw_banner_ic"></div>
+    <div class="tw_alert_tx"><div class="tw_alert_t" id="tw_banner_t"></div><div class="tw_alert_d" id="tw_banner_d"></div></div>
+  </div>
+
+  <div class="tw_sec">{{protections.title}}</div>
+  <div id="tw_protections_list" class="tw_grid"></div>
+
+  <div class="tw_sec">{{dash.device}} <span class="tw_link" id="tw_copy">{{dash.copy}}</span></div>
+  <div class="tw_device" id="tw_device"></div>
 </div>

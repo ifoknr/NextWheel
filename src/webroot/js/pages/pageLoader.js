@@ -513,19 +513,24 @@ export async function loadMiniPage(miniPageId, unloadCb) {
   window.onceTrueEvent('popstate', () => cleanup(false))
 
 
+  /* INFO: Centered in the space above the navbar. Long lists scroll inside the box instead
+             of running off the top of short screens. The frame itself ignores taps, so
+             tapping beside the box still reaches the page and closes the minipage. */
   const minipage_content = document.getElementById('minipage_content')
   minipage_content.style.cssText = `
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: calc(16px + var(--window-inset-top, 0px)) 16px 112px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1;
     background: none;
+    pointer-events: none;
     animation: fade-in 0.3s;
   `
 
   minipage_content.innerHTML = `
-    <div class="dim" style="padding: 20px; border-radius: 10px; width: 80vw;">
+    <div class="dim" style="pointer-events: auto; box-sizing: border-box; padding: 20px; border-radius: 10px; width: min(100%, 520px); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;">
       <div class="dim" style="border-radius: 10px;">
         ${minipage_html}
       </div>
@@ -572,13 +577,25 @@ export function getStrings(pageId, forceDefault = false) {
     })
 }
 
+/* INFO: Arabic and other right-to-left languages flip the page direction. Languages with
+           letters Orbitron lacks (Polish, Turkish, Vietnamese) switch the font to Roboto. */
+function applyLanguageDirection(langId) {
+  document.documentElement.setAttribute('dir', /^(ar|fa|he|ur)_/.test(langId || '') ? 'rtl' : 'ltr')
+
+  if (/^(pl|tr|vi)_/.test(langId || '')) document.documentElement.setAttribute('data-font', 'roboto')
+  else document.documentElement.removeAttribute('data-font')
+}
+
 export function setLanguage(langId) {
   localStorage.setItem(`/${moduleName}/language`, langId)
+  applyLanguageDirection(langId)
 
   sufferedUpdate.length = 0
 }
 
 (async () => {
+  applyLanguageDirection(localStorage.getItem(`/${moduleName}/language`))
+
   await loadPages()
 
   loadPage('home')
