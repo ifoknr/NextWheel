@@ -71,7 +71,7 @@ Which will allow NextWheel to enumerate the amount of ReVanced modules -- hence 
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/ifoknr"><img src="https://github.com/ifoknr.png?size=120" width="96" alt="ifoknr"><br><b>ifoknr</b></a><br>
+      <a href="https://github.com/ifoknr"><img src="https://github.com/ifoknr.png?size=120" width="96" alt="IFOKNR"><br><b>ifoknr</b></a><br>
       NextWheel
     </td>
     <td align="center">
