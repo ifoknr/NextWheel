@@ -89,6 +89,7 @@ extract "$ZIPFILE" 'module.prop'  "$MODPATH"
 extract "$ZIPFILE" 'service.sh'   "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
 extract "$ZIPFILE" 'sepolicy.rule' "$MODPATH"
+extract "$ZIPFILE" 'description.sh' "$MODPATH"
 # INFO: Module banner for the root manager's module list (module.prop: banner=banner.png).
 extract "$ZIPFILE" 'banner.png'   "$MODPATH"
 chmod 644 "$MODPATH/banner.png"

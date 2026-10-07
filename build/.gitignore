@@ -8,6 +8,7 @@
 !src/sepolicy.rule
 !src/service.sh
 !src/uninstall.sh
+!src/description.sh
 !.gitignore
 !/module.prop
 !src/banner.png

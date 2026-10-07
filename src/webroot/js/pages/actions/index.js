@@ -16,7 +16,8 @@ function _writeState(HidingState) {
   if (HidingState.isModuleLoadingTracesHiding) state += 'disable_module_loading_traces_hiding=true\n'
   if (HidingState.isFridaTracesHiding) state += 'disable_frida_traces_hiding=true\n'
 
-  return exec(`echo "${state}" > /data/adb/treat_wheel/state`)
+  /* INFO: description.sh refreshes the count shown in the root manager's module list. */
+  return exec(`echo "${state}" > /data/adb/treat_wheel/state; sh /data/adb/modules/treat_wheel/description.sh`)
 }
 
 const HidingState = {
@@ -122,7 +123,7 @@ export async function load() {
   /* INFO: Changing a protection must not change the overall status. Only clear a
              "crashed" status, so a stale crash report can be dismissed this way. */
   async function _resetStatus() {
-    await exec('grep -q crashed /data/adb/treat_wheel/status && rm -f /data/adb/treat_wheel/status')
+    await exec('grep -q crashed /data/adb/treat_wheel/status && rm -f /data/adb/treat_wheel/status; sh /data/adb/modules/treat_wheel/description.sh')
   }
 
   function _updateButtonsState() {

@@ -1,5 +1,12 @@
 # NextWheel changelog
 
+## v0.0.15
+- The root manager's module list shows NextWheel's status and its protections: whether
+  it is working (or why not: crashed, Zygisk stopped, NextZygisk not found, paused,
+  disabled), and how many protections are active and inactive, for example
+  "✅ Working | 🛡️ 9 active, 0 inactive (9/9)". It refreshes every 30 seconds and right
+  after a change in the WebUI.
+
 ## v0.0.14
 - Updates from the root manager: module.prop has an updateJson link to this repository,
   and each release updates update.json, so the next versions show up as updates
