@@ -15,3 +15,5 @@
 !docs/
 !docs/**
 !update.json
+!.claude/
+!.claude/settings.json
