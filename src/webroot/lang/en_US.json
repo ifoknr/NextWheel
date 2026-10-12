@@ -107,6 +107,12 @@
         "title": "Change language",
         "description": "Change the language of the WebUI to the selected one."
       },
+      "theme": {
+        "title": "Theme",
+        "system": "System",
+        "dark": "Dark",
+        "light": "Light"
+      },
       "fullscreen": {
         "title": "Disable fullscreen mode in WebUI",
         "description": "This option will make the WebUI not fill the whole screen."

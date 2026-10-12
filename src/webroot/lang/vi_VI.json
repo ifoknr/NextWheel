@@ -107,6 +107,12 @@
         "title": "Chuyển ngôn ngữ",
         "description": "Thay đổi ngôn ngữ của WebUI sang ngôn ngữ được chọn"
       },
+      "theme": {
+        "title": "Giao diện",
+        "system": "Hệ thống",
+        "dark": "Tối",
+        "light": "Sáng"
+      },
       "fullscreen": {
         "title": "Vô hiệu hóa chế độ toàn màn hình trong WebUI",
         "description": "Tùy chọn này sẽ khiến WebUI không chiếm toàn bộ màn hình."

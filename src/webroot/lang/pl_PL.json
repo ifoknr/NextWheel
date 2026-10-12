@@ -107,6 +107,12 @@
         "title": "Zmień język",
         "description": "Zmień język WebUI na wybrany."
       },
+      "theme": {
+        "title": "Motyw",
+        "system": "System",
+        "dark": "Ciemny",
+        "light": "Jasny"
+      },
       "fullscreen": {
         "title": "Wyłącz tryb pełnego ekranu w WebUI",
         "description": "Ta opcja spowoduje że WebUI nie bedzie wypełniało całego ekranu."

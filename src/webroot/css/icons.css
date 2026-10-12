@@ -30,3 +30,12 @@
   z-index: 10;
   filter: invert(1);
 }
+
+/* Light: the glyphs are black SVGs inverted to white for the dark navbar. On the light
+   navbar, drop the inversion so they show as dark icons. */
+:root[data-theme="light"] #ni_home,
+:root[data-theme="light"] #ni_modules,
+:root[data-theme="light"] #ni_actions,
+:root[data-theme="light"] #ni_settings {
+  filter: none;
+}

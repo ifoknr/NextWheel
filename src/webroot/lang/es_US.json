@@ -107,6 +107,12 @@
         "title": "Cambiar idioma",
         "description": "Cambia el idioma de la interfaz web al seleccionado."
       },
+      "theme": {
+        "title": "Tema",
+        "system": "Sistema",
+        "dark": "Oscuro",
+        "light": "Claro"
+      },
       "fullscreen": {
         "title": "Deshabilitar modo pantalla completa en la interfaz web",
         "description": "Esta opción evitará que la interfaz web ocupe toda la pantalla."

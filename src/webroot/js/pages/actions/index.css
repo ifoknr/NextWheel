@@ -119,3 +119,10 @@ input:checked + .slider {
   background-color: #2b2f37;
   color: var(--desc);
 }
+
+/* INFO: Light theme — the "futile" flag uses a fixed dark chip above; give it a light
+           counterpart so its (now dark) label stays readable. The "experimental" flag
+           is red with white text and reads fine on both themes. */
+:root[data-theme="light"] .futile_flag {
+  background-color: #e4e7ec;
+}
