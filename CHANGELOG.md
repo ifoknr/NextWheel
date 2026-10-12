@@ -1,5 +1,7 @@
 # NextWheel changelog
 
+<!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
+
 ## v0.0.15
 - The root manager's module list shows NextWheel's status and its protections: whether
   it is working (or why not: crashed, Zygisk stopped, NextZygisk not found, paused,
