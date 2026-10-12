@@ -2,6 +2,12 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.16
+- جديد: وضع نهاري/ليلي للواجهة. مفتاح في الإعدادات (النظام / داكن / فاتح)؛ خيار «النظام» يتبع مظهر جهازك ويتغيّر فورًا، والاختيار محفوظ. الوضع الداكن يبقى الافتراضي، وكل الصفحات صارت واضحة في الوضع الفاتح. متوفّر بكل اللغات.
+
+**English**
+- New: a day/night theme for the WebUI. A switch in Settings (System / Dark / Light); "System" follows your device's appearance and updates live, and your choice is saved. Dark stays the default, and every page now reads cleanly in light mode. Available in every bundled language.
+
 ## v0.0.15
 - The root manager's module list shows NextWheel's status and its protections: whether
   it is working (or why not: crashed, Zygisk stopped, NextZygisk not found, paused,
