@@ -107,6 +107,12 @@
         "title": "Mudar idioma",
         "description": "Muda o idioma da WebUI para o selecionado."
       },
+      "theme": {
+        "title": "Tema",
+        "system": "Sistema",
+        "dark": "Escuro",
+        "light": "Claro"
+      },
       "fullscreen": {
         "title": "Desativar modo de tela cheia na WebUI",
         "description": "Esta opção faz com que a WebUI não preencha toda a tela."

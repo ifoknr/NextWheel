@@ -305,3 +305,35 @@ body {
     transform: translateX(100%);
   }
 }
+
+/* INFO: Light (day) theme. Dark is the default palette above; an inline script in
+           index.html sets data-theme="light" on <html> before the first paint when
+           the user (or the system, in System mode) asks for the light appearance.
+           Only the palette changes here; per-component tweaks sit next to their dark
+           rules in the page stylesheets. */
+:root[data-theme="light"] {
+  --background: #f4f5f7;
+  --font: #1a1d21;
+  --desc: #5c6470;
+  --bright: #dc3b3b;
+  --dim: #ffffff;
+  --dim-brigther: #eceef2;
+  --icon: #9aa1ab;
+  --icon-bc: #e4e7ec;
+  --button: #c6ccd4;
+  --button-enabled: #0f9d6b;
+  --desktop-navbar: #ffffff;
+  --desktop-navicon: #e4e7ec;
+
+  --card: #ffffff;
+  --card-line: #e4e7ec;
+  --faint: #8a93a0;
+  --green: #0f9d6b;
+  --amber: #c07d12;
+  --red: #dc3b3b;
+  --blue: #3b6fe0;
+
+  --lock: #1a1d21;
+}
+
+:root[data-theme="light"] .header { border-bottom-color: #dfe3e8; }

@@ -107,6 +107,12 @@
         "title": "Sprache wechseln",
         "description": "Wechsel zur ausgewählten Sprache."
       },
+      "theme": {
+        "title": "Design",
+        "system": "System",
+        "dark": "Dunkel",
+        "light": "Hell"
+      },
       "fullscreen": {
         "title": "WebUI-Vollbildmodus deaktivieren",
         "description": "Lässt die WebUI nicht den kompletten Bildschirm einnehmen"

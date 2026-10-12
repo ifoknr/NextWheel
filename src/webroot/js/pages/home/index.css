@@ -85,3 +85,16 @@
 .tw_drow { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
 .tw_drow .k { color: var(--desc); font-weight: 500; }
 .tw_drow .v { font-weight: 600; text-align: right; }
+
+/* INFO: Light theme — the hero, ring and tinted chips/alerts use fixed dark hues above,
+           so they get a light counterpart here. The rest of the dashboard follows the
+           palette tokens automatically. */
+:root[data-theme="light"] .tw_hero { background: linear-gradient(135deg, #ffffff, #eef0f3); }
+:root[data-theme="light"] .tw_hero.ok { background: radial-gradient(130% 120% at 15% 50%, rgba(15,157,107,.12), transparent 55%), linear-gradient(135deg,#ffffff,#eef0f3); border-color: rgba(15,157,107,.35); }
+:root[data-theme="light"] .tw_hero.warn { background: radial-gradient(130% 120% at 15% 50%, rgba(192,125,18,.12), transparent 55%), linear-gradient(135deg,#ffffff,#eef0f3); border-color: rgba(192,125,18,.32); }
+:root[data-theme="light"] .tw_hero.err { background: radial-gradient(130% 120% at 15% 50%, rgba(220,59,59,.12), transparent 55%), linear-gradient(135deg,#ffffff,#eef0f3); border-color: rgba(220,59,59,.32); }
+:root[data-theme="light"] .tw_ring { background: conic-gradient(var(--tw-ring, var(--green)) 0 var(--tw-deg, 360deg), #dfe3e8 var(--tw-deg, 360deg) 360deg); }
+:root[data-theme="light"] .tw_ring::after { background: #ffffff; }
+:root[data-theme="light"] .tw_chip.v { background: #e4ebff; border-color: transparent; color: #2a52b5; }
+:root[data-theme="light"] .tw_alert.warn { background: #fdf4e4; border-color: #f0dcb0; }
+:root[data-theme="light"] .tw_alert.err { background: #fdeaea; border-color: #f3c4c4; }

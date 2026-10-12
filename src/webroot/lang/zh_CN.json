@@ -107,6 +107,12 @@
         "title": "更改语言",
         "description": "更改 WebUI 的语言为你所选择的"
       },
+      "theme": {
+        "title": "主题",
+        "system": "跟随系统",
+        "dark": "深色",
+        "light": "浅色"
+      },
       "fullscreen": {
         "title": "禁止全屏 WebUI",
         "description": "该选项不会让WebUI覆盖整个屏幕"

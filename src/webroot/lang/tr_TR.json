@@ -107,6 +107,12 @@
         "title": "Dili değiştir",
         "description": "WebUI dilini seçilen dille değiştir"
       },
+      "theme": {
+        "title": "Tema",
+        "system": "Sistem",
+        "dark": "Koyu",
+        "light": "Açık"
+      },
       "fullscreen": {
         "title": "WebUI tam ekran modunu etkisizleştir",
         "description": "Bu özellik WebUI'nin bütün ekranı kaplamasını durduracak."

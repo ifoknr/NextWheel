@@ -39,6 +39,36 @@ export async function load() {
     utils.addListener(window, 'click', setLanguageCb)
   })
 
+  /* INFO: Theme (day/night) selector. The inline script in index.html already applied
+             the saved choice before first paint; here we reflect it and let the user
+             switch live. System mode follows the OS and updates via the matchMedia
+             listener that same inline script installs. */
+  const THEME_KEY = '/TreatWheel/theme'
+  const theme_seg = document.getElementById('tw_theme_seg')
+  if (theme_seg) {
+    const sysDark = () => !window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches
+    const applyTheme = (pref) => {
+      const dark = pref === 'dark' || (pref === 'system' && sysDark())
+      if (dark) document.documentElement.removeAttribute('data-theme')
+      else document.documentElement.setAttribute('data-theme', 'light')
+    }
+    const markTheme = (pref) => theme_seg.querySelectorAll('.tw_seg_btn')
+      .forEach((b) => b.classList.toggle('active', b.getAttribute('data-theme-opt') === pref))
+
+    let themePref = 'system'
+    try { themePref = localStorage.getItem(THEME_KEY) || 'system' } catch (e) {}
+    markTheme(themePref)
+
+    theme_seg.querySelectorAll('.tw_seg_btn').forEach((btn) => {
+      utils.addListener(btn, 'click', () => {
+        themePref = btn.getAttribute('data-theme-opt')
+        try { localStorage.setItem(THEME_KEY, themePref) } catch (e) {}
+        applyTheme(themePref)
+        markTheme(themePref)
+      })
+    })
+  }
+
   const tw_webui_fullscreen_switch = document.getElementById('tw_webui_fullscreen_switch')
   if (WebUIConfig.disableFullscreen) tw_webui_fullscreen_switch.checked = true
 

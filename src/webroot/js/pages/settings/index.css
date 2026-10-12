@@ -17,6 +17,36 @@
   cursor: pointer;
 }
 
+/* INFO: Theme segmented control (System / Dark / Light). An inset track with a raised
+           capsule behind the active option. Selectors are scoped to .tw_seg so they win
+           over the generic .dimc card background without depending on load order. */
+.tw_seg {
+  display: flex;
+  gap: 4px;
+  background: var(--background);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.tw_seg .tw_seg_btn {
+  flex: 1;
+  text-align: center;
+  background: var(--background);
+  color: var(--desc);
+  border-radius: 9px;
+  padding: 10px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tw_seg .tw_seg_btn.active {
+  background: var(--dim-brigther);
+  color: var(--font);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+}
+
 /* INFO: Code shared with actions page */
 
 /* INFO: Let the card background show behind the text instead of the page background. */

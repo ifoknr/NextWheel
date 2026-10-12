@@ -1,8 +1,33 @@
 <!DOCTYPE html>
+<html id="main_html" lang="en" dir="ltr">
   <head>
+    <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
     <meta name="viewport" content="viewport-fit=cover" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script>
+      /* INFO: Apply the saved day/night theme before the first paint so there is no flash
+                 of the wrong palette. "system" follows the OS and stays in sync with it. */
+      (function () {
+        var KEY = '/TreatWheel/theme';
+        function pref() { try { return localStorage.getItem(KEY) || 'system' } catch (e) { return 'system' } }
+        function sysDark() { return !window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches }
+        function apply(p) {
+          var dark = p === 'dark' || (p === 'system' && sysDark());
+          if (dark) document.documentElement.removeAttribute('data-theme');
+          else document.documentElement.setAttribute('data-theme', 'light');
+        }
+        apply(pref());
+        if (window.matchMedia) {
+          try {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+              if (pref() === 'system') apply('system');
+            });
+          } catch (e) {}
+        }
+      })();
+    </script>
 
     <link rel="stylesheet" type="text/css" href="https://mui.kernelsu.org/internal/insets.css">
 
