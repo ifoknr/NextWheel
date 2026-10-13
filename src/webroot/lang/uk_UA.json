@@ -40,6 +40,8 @@
       "dash": {
         "updated": "Updated at %s",
         "heroActive": "%s of %s protections active",
+        "statProtections": "Protections",
+        "uptime": "Uptime",
         "device": "Device",
         "copy": "Copy",
         "copied": "Copied to clipboard",

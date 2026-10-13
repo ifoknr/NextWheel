@@ -40,6 +40,8 @@
       "dash": {
         "updated": "آخر تحديث %s",
         "heroActive": "الحمايات المفعّلة: %s من %s",
+        "statProtections": "الحمايات",
+        "uptime": "مدة التشغيل",
         "device": "الجهاز",
         "copy": "نسخ",
         "copied": "تم النسخ",

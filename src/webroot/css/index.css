@@ -75,9 +75,9 @@ a {
   margin-bottom: 120px;
 }
 
-/* INFO: Actions and settings fill the screen: one column on phones, cards side by
-           side on tablets and large screens. */
-@media (min-width: 900px) {
+/* INFO: One column on phones. On tablets and large screens the pages are centered like
+           NextZygisk's: Actions puts cards side by side, Settings stays a narrow list. */
+@media (min-width: 760px) {
   .tw_list {
     --tw-gutter: 16px;
     display: grid;
@@ -85,6 +85,14 @@ a {
     align-items: stretch;
     column-gap: 16px;
     padding-inline: var(--tw-gutter);
+    max-width: 1200px;
+    margin-inline: auto;
+    box-sizing: border-box;
+  }
+
+  .tw_list:has(#lang_page_toggle) {
+    max-width: 820px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .tw_list > :not(.small_card):not(.card) {
@@ -93,18 +101,18 @@ a {
 
   .tw_list > .header {
     margin-inline: calc(-1 * var(--tw-gutter));
-    padding-inline: calc(var(--tw-gutter) + 4px);
+    padding: 26px calc(var(--tw-gutter) + 4px) 18px;
+    border-bottom: none;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
   }
+
+  .tw_list > .header + div { display: none; }
 
   .tw_list > .small_card,
   .tw_list > .card {
     margin: 0 0 16px 0 !important;
-  }
-}
-
-@media (min-width: 1500px) {
-  .tw_list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

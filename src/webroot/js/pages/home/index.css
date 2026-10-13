@@ -98,3 +98,55 @@
 :root[data-theme="light"] .tw_chip.v { background: #e4ebff; border-color: transparent; color: #2a52b5; }
 :root[data-theme="light"] .tw_alert.warn { background: #fdf4e4; border-color: #f0dcb0; }
 :root[data-theme="light"] .tw_alert.err { background: #fdeaea; border-color: #f3c4c4; }
+
+/* INFO: Tablets and desktops (same layout as NextZygisk): centered content, two columns,
+           a bigger hero with stats. Phones keep the single-column layout above. */
+.tw_hstats { display: none; }
+.tw_hero.ok { --tw-hero-rgb: 52, 211, 153; }
+.tw_hero.warn { --tw-hero-rgb: 243, 169, 58; }
+.tw_hero.err { --tw-hero-rgb: 240, 82, 82; }
+
+@media (min-width: 760px) {
+  .tw_home { max-width: 1200px; margin-inline: auto; box-sizing: border-box; }
+
+  .tw_cols {
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 24px; align-items: start;
+  }
+  .tw_cols .tw_grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .tw_cell { padding: 16px; border-radius: 16px; }
+  .tw_cell_lb { font-size: 17px; }
+  .tw_device { padding: 6px 18px; gap: 0; border-radius: 20px; }
+  .tw_drow { align-items: center; padding: 11px 0; border-bottom: 1px solid var(--card-line); }
+  .tw_drow:last-child { border-bottom: none; }
+  .tw_drow .v { font-size: 14px; word-break: break-word; }
+
+  .tw_hero { padding: 28px 30px; gap: 26px; border-radius: 24px; flex-wrap: wrap; }
+  .tw_ring { width: 112px; height: 112px; }
+  .tw_ring::after { inset: 10px; }
+  .tw_htitle { font-size: 32px; }
+  .tw_hsub { font-size: 14px; }
+
+  /* INFO: Stats get their own row until there is room for them beside the status. */
+  .tw_hstats {
+    display: flex; align-items: center; justify-content: space-around; flex-basis: 100%;
+    padding-top: 16px; border-top: 1px solid rgba(var(--tw-hero-rgb, 127, 127, 127), .3);
+  }
+  .tw_hstat {
+    min-width: 96px; padding: 6px 20px; text-align: center;
+    border-inline-start: 1px solid rgba(var(--tw-hero-rgb, 127, 127, 127), .3);
+  }
+  .tw_hstats .tw_hstat:first-child { border-inline-start: none; }
+  .tw_hstat_v { font-size: 26px; font-weight: 600; line-height: 1.1; white-space: nowrap; }
+  .tw_hstat_l { font-size: 12px; color: var(--desc); margin-top: 6px; white-space: nowrap; font-weight: 500; }
+}
+
+@media (min-width: 880px) {
+  .tw_hero { flex-wrap: nowrap; }
+  .tw_hstats {
+    justify-content: flex-start; flex-basis: auto; flex-shrink: 0; margin-inline-start: auto;
+    padding-top: 0; border-top: none;
+  }
+  .tw_hstats .tw_hstat:first-child { border-inline-start: 1px solid rgba(var(--tw-hero-rgb, 127, 127, 127), .3); }
+}

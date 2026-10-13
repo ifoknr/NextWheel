@@ -1,4 +1,9 @@
 const developmentResponse = {
+  'cat /proc/uptime': {
+    errno: 0,
+    stdout: '187320.55 1402345.10',
+    stderr: ''
+  },
   'cat /data/adb/treat_wheel/webui_config': {
     errno: 0,
     stdout: `disable_fullscreen=false`,

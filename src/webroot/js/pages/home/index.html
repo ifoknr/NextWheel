@@ -18,6 +18,8 @@
       <div class="tw_hsub" id="tw_hsub"></div>
       <div class="tw_chips" id="tw_chips"></div>
     </div>
+    <!-- INFO: Only shown on wide screens -->
+    <div class="tw_hstats" id="tw_hstats"></div>
   </div>
 
   <!-- INFO: Experimental build warning. CI builds strip " display: none;" to show it. -->
@@ -32,9 +34,16 @@
     <div class="tw_alert_tx"><div class="tw_alert_t" id="tw_banner_t"></div><div class="tw_alert_d" id="tw_banner_d"></div></div>
   </div>
 
-  <div class="tw_sec">{{protections.title}}</div>
-  <div id="tw_protections_list" class="tw_grid"></div>
+  <!-- INFO: One column on phones, two columns on tablets -->
+  <div class="tw_cols">
+    <div class="tw_col">
+      <div class="tw_sec">{{protections.title}}</div>
+      <div id="tw_protections_list" class="tw_grid"></div>
+    </div>
 
-  <div class="tw_sec">{{dash.device}} <span class="tw_link" id="tw_copy">{{dash.copy}}</span></div>
-  <div class="tw_device" id="tw_device"></div>
+    <div class="tw_col">
+      <div class="tw_sec">{{dash.device}} <span class="tw_link" id="tw_copy">{{dash.copy}}</span></div>
+      <div class="tw_device" id="tw_device"></div>
+    </div>
+  </div>
 </div>

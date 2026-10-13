@@ -172,6 +172,11 @@ function _timeNow() {
   }
 }
 
+function _duration(secs) {
+  const d = Math.floor(secs / 86400), h = Math.floor(secs % 86400 / 3600), m = Math.floor(secs % 3600 / 60)
+  return d ? `${d}d ${h}h ${m}m` : h ? `${h}h ${m}m` : `${m}m`
+}
+
 function esc(s) { return String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) }
 
 async function refreshDashboard() {
@@ -264,6 +269,20 @@ async function refreshDashboard() {
     /* INFO: Show a SuSFS chip when NextSUSFS is installed: green when it is working in
                the kernel, amber when installed but the kernel has no SuSFS. */
     (susfs.present ? `<span class="tw_chip" style="color:${susfs.working ? 'var(--green)' : 'var(--amber)'}">SuSFS</span>` : '')
+
+  /* INFO: Wide screens only (hidden by CSS on phones): the same numbers NextZygisk shows
+             beside its status. */
+  const statsEl = document.getElementById('tw_hstats')
+  if (statsEl) {
+    const uptime = parseFloat(((await exec('cat /proc/uptime')).stdout || '').split(' ')[0])
+    const stats = [
+      [`${active} / ${total}`, strings.dash.statProtections],
+      [twEnv.rootImpl, strings.dash.root],
+      [uptime > 0 ? _duration(uptime) : '', strings.dash.uptime]
+    ].filter(([value, label]) => value && label)
+    statsEl.innerHTML = stats.map(([value, label]) =>
+      `<div class="tw_hstat"><div class="tw_hstat_v" dir="ltr">${esc(value)}</div><div class="tw_hstat_l">${esc(label)}</div></div>`).join('')
+  }
 
   if (banner) {
     if (bType) {
