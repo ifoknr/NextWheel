@@ -158,3 +158,41 @@
   color: var(--font);
   font-weight: 600;
 }
+
+/* ============================================================
+   Navbar: give each item an equal share of the pill (like
+   NextZygisk) so the icons stay evenly spaced, widen the pill
+   and enlarge the icons on tablets and large screens.
+   ============================================================ */
+#navbar > .navicon_support {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+#navbar label.radio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+#navbar_support_div { --tw-nav-width: 420px; }
+
+@media (min-width: 720px) {
+  #navbar_support_div { --tw-nav-width: 560px; }
+  #navbar { padding: 8px; }
+  #navbar .navicon_support > .navicon_support { width: 66px !important; }
+  #navbar .navicon,
+  #navbar .navicon.show { height: 34px; }
+  #navbar .navicon.show { width: 66px; }
+  #navbar #ni_home,
+  #navbar #ni_modules,
+  #navbar #ni_actions,
+  #navbar #ni_settings { width: 25px; height: 25px; }
+  #navbar .navtitle { font-size: 12.5px; }
+}
