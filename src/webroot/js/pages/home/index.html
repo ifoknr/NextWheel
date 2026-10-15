@@ -1,4 +1,4 @@
-<!-- INFO: Home page (redesigned dashboard) -->
+<!-- INFO: Home page (NextZygisk-style dashboard) -->
 <div id="panel_home" class="panel tw_home">
   <div class="tw_hdr">
     <div class="tw_hdr_l">
@@ -10,14 +10,17 @@
     </div>
   </div>
 
-  <!-- INFO: Status hero -->
+  <!-- INFO: Status hero: ring + title/subtitle/chips on the left, stat trio on the right -->
   <div class="tw_hero tw_neutral" id="tw_hero">
-    <div class="tw_ring" id="tw_ring"><div class="tw_ring_ic" id="tw_ring_ic"></div></div>
-    <div class="tw_hbody">
-      <div class="tw_htitle" id="tw_state">{{workingModes.unknown}}</div>
-      <div class="tw_hsub" id="tw_hsub"></div>
-      <div class="tw_chips" id="tw_chips"></div>
+    <div class="tw_hero_main">
+      <div class="tw_ring" id="tw_ring"><div class="tw_ring_ic" id="tw_ring_ic"></div></div>
+      <div class="tw_hbody">
+        <div class="tw_htitle" id="tw_state">{{workingModes.unknown}}</div>
+        <div class="tw_hsub" id="tw_hsub">{{dash.subtitle}}</div>
+        <div class="tw_chips" id="tw_chips"></div>
+      </div>
     </div>
+    <div class="tw_hstats" id="tw_hstats"></div>
   </div>
 
   <!-- INFO: Experimental build warning. CI builds strip " display: none;" to show it. -->
@@ -26,15 +29,28 @@
     <div class="tw_alert_tx"><div class="tw_alert_d">{{workingModes.ciBuild}}</div></div>
   </div>
 
-  <!-- INFO: Contextual alert (incompatible modules / crash / disabled count) -->
+  <!-- INFO: Contextual alert (incompatible modules / crash / zygisk down) -->
   <div class="tw_alert" id="tw_banner" style="display: none;">
     <div class="tw_alert_ic" id="tw_banner_ic"></div>
     <div class="tw_alert_tx"><div class="tw_alert_t" id="tw_banner_t"></div><div class="tw_alert_d" id="tw_banner_d"></div></div>
   </div>
 
-  <div class="tw_sec">{{protections.title}}</div>
-  <div id="tw_protections_list" class="tw_grid"></div>
+  <!-- INFO: Two columns on tablets, a single column on phones -->
+  <div class="tw_cols">
+    <div class="tw_col">
+      <div class="tw_sec">{{status.title}}</div>
+      <div class="tw_status_grid" id="tw_status_grid"></div>
 
-  <div class="tw_sec">{{dash.device}} <span class="tw_link" id="tw_copy">{{dash.copy}}</span></div>
-  <div class="tw_device" id="tw_device"></div>
+      <div class="tw_sec">{{protections.title}} <span class="tw_link" id="tw_manage">{{protections.manage}}</span></div>
+      <div class="tw_prot_card" id="tw_protections_list"></div>
+    </div>
+
+    <div class="tw_col">
+      <div class="tw_sec">{{dash.device}} <span class="tw_link" id="tw_copy">{{dash.copy}}</span></div>
+      <div class="tw_device" id="tw_device"></div>
+
+      <div class="tw_sec">{{tools.title}}</div>
+      <div class="tw_tools" id="tw_tools"></div>
+    </div>
+  </div>
 </div>
