@@ -9,7 +9,7 @@
 /* INFO: The global `*` rule paints every element with the page background, which
            left dark boxes behind text. Let the dashboard cards show through; rules
            below that set their own background still win. */
-.tw_home :where(.tw_hdr, .tw_hero, .tw_alert, .tw_cell, .tw_device, .tw_prot_row, .tw_tool) * { background-color: transparent; }
+.tw_home :where(.tw_hdr, .tw_hero, .tw_alert, .tw_cell, .tw_device, .tw_prot_card, .tw_tool) * { background-color: transparent; }
 
 /* Header */
 .tw_hdr {
@@ -106,7 +106,7 @@
 .tw_prot_card { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 2px 16px; }
 .tw_prot_row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; }
 .tw_prot_row + .tw_prot_row { border-top: 1px solid var(--card-line); }
-.tw_prot_tx { min-width: 0; }
+.tw_prot_tx { flex: 1 1 auto; min-width: 0; text-align: start; }
 .tw_prot_nm { font-size: 14px; font-weight: 600; line-height: 1.25; }
 .tw_prot_bl { font-size: 12px; color: var(--desc); margin-top: 3px; line-height: 1.35; }
 

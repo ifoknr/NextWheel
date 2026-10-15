@@ -40,17 +40,19 @@ async function _isModuleDisabled() {
   return await _fileExists('/data/adb/modules/treat_wheel/disable')
 }
 
+/* INFO: ok is false when the state file could not be read. An empty file with ok=true is
+           the valid "every protection on" case; a failed read must NOT be treated that way,
+           or the dashboard would fabricate an all-on view for a device it never queried. */
 async function _readStateFlags() {
   const result = await exec('cat /data/adb/treat_wheel/state')
   const flags = {}
-  if (result.errno === 0) {
-    result.stdout.split('\n').forEach((line) => {
-      const idx = line.indexOf('=')
-      if (idx === -1) return;
-      flags[line.slice(0, idx).trim()] = line.slice(idx + 1).trim() === 'true'
-    })
-  }
-  return flags
+  if (result.errno !== 0) return { flags, ok: false }
+  result.stdout.split('\n').forEach((line) => {
+    const idx = line.indexOf('=')
+    if (idx === -1) return;
+    flags[line.slice(0, idx).trim()] = line.slice(idx + 1).trim() === 'true'
+  })
+  return { flags, ok: true }
 }
 
 /* INFO: Serialise the state file the same way the Actions page does: only the flags that
@@ -268,7 +270,9 @@ async function refreshDashboard() {
   const list = document.getElementById('tw_protections_list')
   if (!list) return;
 
-  const flags = await _readStateFlags()
+  const stateRead = await _readStateFlags()
+  const flags = stateRead.flags
+  const stateOk = stateRead.ok
   const ignoring = flags['ignoring'] === true
   const paused = ignoring || twEnv.disabled
   const status = await exec('cat /data/adb/treat_wheel/status')
@@ -279,15 +283,24 @@ async function refreshDashboard() {
 
   /* Protections list (left column) → rows with working switches */
   let active = 0
+  let total = 0
   let html = ''
   for (const [key, disableKey] of TW_PROTECTIONS) {
-    const isActive = !paused && flags[disableKey] !== true
+    /* INFO: Denylist logic inversion is Magisk-only — on other roots it is locked on and
+               cannot be toggled, so hide its row entirely (like NextSUSFS hides options that
+               do not apply) and leave it out of the count, so the "N/N" the user sees always
+               matches the number of switches shown. */
+    if (key === 'denylistLogicInversion' && twEnv.rootImplRaw !== 'Magisk') continue;
+    total++
+
+    /* INFO: A protection is active when its disable flag is not set and nothing is pausing
+               hiding. When the state file could not be read we show nothing as active rather
+               than defaulting the whole list to on. */
+    const isActive = stateOk && !paused && flags[disableKey] !== true
     if (isActive) active++
 
-    /* INFO: Denylist logic inversion is Magisk-only; lock it elsewhere like Actions does. */
-    const magiskLocked = twEnv.rootImplRaw !== 'Magisk' && key === 'denylistLogicInversion'
-    const rowDisabled = paused || magiskLocked
-    const checked = (flags[disableKey] !== true) ? 'checked' : ''
+    const rowDisabled = paused || !stateOk
+    const checked = (stateOk && flags[disableKey] !== true) ? 'checked' : ''
     const label = strings.protections.items[key] || key
     const blurb = (strings.protections.blurbs && strings.protections.blurbs[key]) || ''
     html += `<div class="tw_prot_row${rowDisabled ? ' dis' : ''}" data-key="${key}" data-flag="${disableKey}">` +
@@ -297,7 +310,6 @@ async function refreshDashboard() {
   }
   list.innerHTML = html
   _wireProtectionSwitches(list, flags)
-  const total = TW_PROTECTIONS.length
   const listSep = document.documentElement.getAttribute('dir') === 'rtl' ? '، ' : ', '
 
   /* Overall status → hero + banner + device-status row */
