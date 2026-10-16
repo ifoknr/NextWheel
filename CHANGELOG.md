@@ -2,6 +2,16 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.17
+- واجهة رئيسية جديدة بالكامل: لوحة معلومات على طراز NextZygisk — بطاقة رئيسية بحالة الحماية وثلاث إحصائيات، بطاقات حالة، بطاقة الحمايات، معلومات الجهاز، وشبكة أدوات. فاتح/داكن و RTL، وعمودين على التابلت.
+- إصلاح: مفاتيح الحماية صارت تطابق الوضع الحقيقي — فشل قراءة الحالة ما عاد يعرضها كلها مفعّلة، وصف «قلب منطق القائمة» الخاص بـ Magisk ينخفي على غير Magisk، والعدّاد يطابق الصفوف الظاهرة. والكلام صار بعرض الصف بدون تظليل.
+- شريط التنقل على التابلت أكبر ومتساوي العناصر.
+
+**English**
+- Brand-new Home: a NextZygisk-style dashboard — a hero protection-status card with three stats, status cards, a protections card, device info and a tools grid. Light/dark and RTL, two columns on tablets.
+- Fixed: protection switches now match the real state — a failed state read no longer shows them all on, the Magisk-only "Denylist logic inversion" row is hidden on non-Magisk roots, and the count matches the visible rows. Row text now fills the width with no shadow behind it.
+- Bigger, even tablet navbar.
+
 ## v0.0.16
 - جديد: وضع نهاري/ليلي للواجهة. مفتاح في الإعدادات (النظام / داكن / فاتح)؛ خيار «النظام» يتبع مظهر جهازك ويتغيّر فورًا، والاختيار محفوظ. الوضع الداكن يبقى الافتراضي، وكل الصفحات صارت واضحة في الوضع الفاتح. متوفّر بكل اللغات.
 
