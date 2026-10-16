@@ -190,13 +190,10 @@ async function _readHiddenApps() {
     const pkgs = new Set(mg.stdout.trim().split('\n').map((l) => l.split('|')[0].trim()).filter(Boolean))
     if (pkgs.size) return { count: pkgs.size, known: true }
   }
-  /* KernelSU / KernelSU-Next and APatch store per-app profiles; the umount list is the
-       set of non-root apps that still get modules unmounted (NextWheel's hiding targets). */
-  const ksu = await exec("ksud profile list 2>/dev/null || su -c 'ksud profile list' 2>/dev/null")
-  if (ksu.errno === 0 && ksu.stdout.trim()) {
-    const n = ksu.stdout.trim().split('\n').filter((l) => l.trim()).length
-    if (n) return { count: n, known: true }
-  }
+  /* KernelSU-Next and APatch have no CLI that lists the umount denylist: there is no
+       `ksud ... list`, and non-root apps mostly follow a global "umount modules" default
+       instead of an explicit per-app entry, so the apps NextWheel hides from cannot be
+       counted. Leave it unknown ("—") rather than invent a number that would be wrong. */
   return { count: 0, known: false }
 }
 
