@@ -120,6 +120,13 @@
 .tw_prot_row.dis { opacity: .5; }
 .tw_prot_row.dis .tw_slider { cursor: default; }
 
+/* Read-only state lamp: green glow = protection on, dim = off, amber = unknown. The
+   toggles themselves live on the Actions page, so Home only reflects state. */
+.tw_lamp { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; background: var(--faint); opacity: .4; transition: background .25s, box-shadow .25s, opacity .25s; }
+.tw_lamp.on { background: var(--green); opacity: 1; box-shadow: 0 0 9px 1px rgba(52,211,153,.5), 0 0 0 4px rgba(52,211,153,.14); }
+.tw_lamp.off { background: var(--faint); opacity: .4; }
+.tw_lamp.unknown { background: var(--amber); opacity: 1; box-shadow: 0 0 0 4px rgba(243,169,58,.14); }
+
 /* Device */
 .tw_device { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 4px 16px; }
 .tw_drow { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 11px 0; }

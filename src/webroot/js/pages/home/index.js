@@ -180,23 +180,6 @@ async function _getUptime(strings) {
   return `${m}${uM}`
 }
 
-/* INFO: Count the apps NextWheel enforces hiding on — the root manager's denylist. There
-           is no single cross-root file, so try each manager in turn and leave it unknown
-           (shown as "—") when none answers, instead of inventing a number. */
-async function _readHiddenApps() {
-  /* Magisk keeps a "package|process" denylist its CLI can list. */
-  const mg = await exec('magisk --denylist ls 2>/dev/null')
-  if (mg.errno === 0 && mg.stdout.trim()) {
-    const pkgs = new Set(mg.stdout.trim().split('\n').map((l) => l.split('|')[0].trim()).filter(Boolean))
-    if (pkgs.size) return { count: pkgs.size, known: true }
-  }
-  /* KernelSU-Next and APatch have no CLI that lists the umount denylist: there is no
-       `ksud ... list`, and non-root apps mostly follow a global "umount modules" default
-       instead of an explicit per-app entry, so the apps NextWheel hides from cannot be
-       counted. Leave it unknown ("—") rather than invent a number that would be wrong. */
-  return { count: 0, known: false }
-}
-
 async function _usedRootImpl() {
   const providers = { KSU: false, APatch: false, Magisk: false }
   {
@@ -275,7 +258,6 @@ async function refreshDashboard() {
   const status = await exec('cat /data/adb/treat_wheel/status')
   const zygisk = await _readZygiskHealth()
   const susfs = await _readSusfs()
-  const hidden = await _readHiddenApps()
   const incompatible = globalThis.incompatibleModules
 
   /* Protections list (left column) → rows with working switches */
@@ -290,23 +272,21 @@ async function refreshDashboard() {
     if (key === 'denylistLogicInversion' && twEnv.rootImplRaw !== 'Magisk') continue;
     total++
 
-    /* INFO: A protection is active when its disable flag is not set and nothing is pausing
-               hiding. When the state file could not be read we show nothing as active rather
-               than defaulting the whole list to on. */
-    const isActive = stateOk && !paused && flags[disableKey] !== true
-    if (isActive) active++
-
-    const rowDisabled = paused || !stateOk
-    const checked = (stateOk && flags[disableKey] !== true) ? 'checked' : ''
+    /* INFO: A protection is on when its disable flag is not set. The Home dashboard shows it
+               read-only as a lamp (green = on, dim = off), and the toggles live on the Actions
+               page, so the two pages can never disagree. When the state file could not be read
+               we light nothing and mark each lamp unknown instead of defaulting to on. */
+    const on = stateOk && flags[disableKey] !== true
+    if (on) active++
+    const lamp = !stateOk ? 'unknown' : (on ? 'on' : 'off')
     const label = strings.protections.items[key] || key
     const blurb = (strings.protections.blurbs && strings.protections.blurbs[key]) || ''
-    html += `<div class="tw_prot_row${rowDisabled ? ' dis' : ''}" data-key="${key}" data-flag="${disableKey}">` +
+    html += `<div class="tw_prot_row" data-key="${key}">` +
             `<div class="tw_prot_tx"><div class="tw_prot_nm">${esc(label)}</div><div class="tw_prot_bl">${esc(blurb)}</div></div>` +
-            `<label class="tw_switch"><input type="checkbox" ${checked} ${rowDisabled ? 'disabled' : ''}><span class="tw_slider"></span></label>` +
+            `<span class="tw_lamp ${lamp}" aria-hidden="true"></span>` +
             `</div>`
   }
   list.innerHTML = html
-  _wireProtectionSwitches(list, flags)
   const listSep = document.documentElement.getAttribute('dir') === 'rtl' ? '، ' : ', '
 
   /* Overall status → hero + banner + device-status row */
@@ -364,20 +344,18 @@ async function refreshDashboard() {
                the kernel, amber when installed but the kernel has no SuSFS. */
     (susfs.present ? `<span class="tw_chip" style="color:${susfs.working ? 'var(--green)' : 'var(--amber)'}">SuSFS</span>` : '')
 
-  const hiddenStr = hidden.known ? String(hidden.count) : '—'
-
-  /* Hero stat trio */
+  /* Hero stat pair: active protections and uptime. The denylist is shown as a status card,
+       not a number, so it is not one of these. */
   const statsEl = document.getElementById('tw_hstats')
   if (statsEl) statsEl.innerHTML =
     `<div class="tw_hstat"><div class="tw_hstat_n">${active}/${total}</div><div class="tw_hstat_l">${esc(strings.protections.title)}</div></div>` +
-    `<div class="tw_hstat"><div class="tw_hstat_n">${esc(hiddenStr)}</div><div class="tw_hstat_l">${esc(strings.dash.statHidden)}</div></div>` +
     `<div class="tw_hstat"><div class="tw_hstat_n">${esc(twEnv.uptime || '—')}</div><div class="tw_hstat_l">${esc(strings.dash.uptime)}</div></div>`
 
   /* Status 2x2 cards */
-  _paintStatusCards(strings, { heroCls, zygisk, paused, ignoring, hidden })
+  _paintStatusCards(strings, { heroCls, zygisk, paused, ignoring })
 
   /* Device card + status row */
-  _paintDevice(strings, { title, heroCls, hiddenStr, zygisk })
+  _paintDevice(strings, { title, heroCls, zygisk })
 
   if (banner) {
     if (bType) {
@@ -404,7 +382,7 @@ function _paintStatusCards(strings, ctx) {
   const el = document.getElementById('tw_status_grid')
   if (!el) return;
   const s = strings.status
-  const { heroCls, zygisk, paused, hidden } = ctx
+  const { heroCls, zygisk, paused } = ctx
 
   /* NextWheel */
   let nwDot = 'on', nwLabel = s.active, nwSub = s.subActive
@@ -425,14 +403,17 @@ function _paintStatusCards(strings, ctx) {
   const zgLabel = zgInjected ? s.injected : s.notInjected
   const zgSub = zgInjected ? twEnv.device.bits : s.subNotInjected
 
-  /* Denylist */
-  const dlLabel = hidden.known ? String(hidden.count) : '—'
+  /* INFO: Denylist shown as a status, not a count: KernelSU has no command that lists it,
+             so instead of inventing a number we report whether NextWheel is actively
+             enforcing hiding — Zygisk injected and not paused. */
+  const dlActive = zgInjected && !paused
+  const dlLabel = dlActive ? s.active : (paused ? s.paused : s.notInjected)
 
   el.innerHTML =
     _cardHTML('M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6z', s.nextwheel, nwDot, nwLabel, nwSub) +
     _cardHTML('M12 3a9 9 0 100 18 9 9 0 000-18z', s.nextzygisk, zDot, zLabel, zSub) +
     _cardHTML('M5 5h14v14H5z', s.zygote, zgDot, zgLabel, zgSub) +
-    _cardHTML('M5 12h14', s.denylist, hidden.known ? 'on' : 'neutral', dlLabel, s.subApps)
+    _cardHTML('M5 12h14', s.denylist, dlActive ? 'on' : 'neutral', dlLabel, s.subApps)
 }
 
 function _paintDevice(strings, ctx) {
@@ -441,7 +422,6 @@ function _paintDevice(strings, ctx) {
   const d = strings.dash
   const emoji = ctx && ctx.heroCls ? STATUS_EMOJI[ctx.heroCls] : ''
   const statusVal = ctx && ctx.title ? `${ctx.title} ${emoji}` : '—'
-  const hiddenStr = ctx ? ctx.hiddenStr : '—'
   const rows = [
     [d.model, twEnv.device.model],
     [d.android, twEnv.device.android],
@@ -449,7 +429,6 @@ function _paintDevice(strings, ctx) {
     [d.root, twEnv.rootImpl],
     [d.zygiskHost, twEnv.zygiskHost || '—'],
     [d.abi || d.architecture, twEnv.device.arch],
-    [d.hiddenApps, hiddenStr],
     [d.statusRow, statusVal]
   ]
   el.innerHTML = rows.map(([k, v]) => `<div class="tw_drow"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')
@@ -522,6 +501,17 @@ async function _runTool(tool, strings) {
     try { await navigator.clipboard.writeText(report) } catch (e) {}
     toast(t.savedTo.replace('%s', out))
   } else if (tool === 'denylist') {
+    /* INFO: NextWheel does not own the denylist — the root manager does, and only enforces
+               hiding on it. So open whichever manager is installed (KernelSU-Next, KernelSU,
+               APatch, Magisk) at its launcher so the user can edit the list there, then point
+               them to it with the hint. */
+    for (const pkg of ['com.rifsxd.ksunext', 'me.weishu.kernelsu', 'me.bmax.apatch', 'com.topjohnwu.magisk']) {
+      const has = await exec(`pm path ${pkg} 2>/dev/null`)
+      if (has.errno === 0 && has.stdout.trim()) {
+        await exec(`monkey -p ${pkg} -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; echo done`)
+        break
+      }
+    }
     toast(t.denylistHint)
   } else if (tool === 'softReboot') {
     toast(t.rebooting)
