@@ -452,7 +452,9 @@ export async function loadPage(pageId) {
   } finally {
     isPageTransitioning = false
 
-    if (pageId === 'home' && currentPage !== 'home')
+    /* INFO: Only drop the entry this WebUI pushed. On the first load there is none, and going
+             back would leave the WebUI for whatever page came before it. */
+    if (pageId === 'home' && currentPage !== 'home' && history.state === true)
       history.back()
     else if (pageId !== 'home' && currentPage === 'home')
       history.pushState(true, '', location.pathname)
