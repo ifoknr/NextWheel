@@ -130,3 +130,8 @@ input:checked + .slider {
   unicode-bidi: isolate;
   direction: ltr;
 }
+
+/* INFO: IFOKNR in the Swamp Ninja lettering, drawn as outlines in the credit colour of each theme. */
+.tw_sig { display: inline-block; height: 14px; width: auto; vertical-align: -2px; }
+.tw_sig_light, :root[data-theme="light"] .tw_sig_dark { display: none; }
+:root[data-theme="light"] .tw_sig_light { display: inline-block; }
