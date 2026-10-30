@@ -2,6 +2,14 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.18
+- شكل جديد: أيقونة رمادية هادية مثل باقي أدوات IFOKNR، واسم الأداة بخط جديد فوق، وتوقيع IFOKNR في صفحة الحقوق.
+- إصلاح: أول فتح للواجهة يبقى على الصفحة، وزر الرجوع ما عاد يطلّعك منها.
+
+**English**
+- New look: a calm grey icon like the other IFOKNR tools, the name in new lettering at the top, and IFOKNR's signature in the credits.
+- Fixed: the first load of the WebUI stays on the page; Back no longer leaves it.
+
 ## v0.0.17
 - واجهة رئيسية جديدة بالكامل: لوحة معلومات على طراز NextZygisk — بطاقة رئيسية بحالة الحماية وثلاث إحصائيات، بطاقات حالة، بطاقة الحمايات، معلومات الجهاز، وشبكة أدوات. فاتح/داكن و RTL، وعمودين على التابلت.
 - إصلاح: مفاتيح الحماية صارت تطابق الوضع الحقيقي — فشل قراءة الحالة ما عاد يعرضها كلها مفعّلة، وصف «قلب منطق القائمة» الخاص بـ Magisk ينخفي على غير Magisk، والعدّاد يطابق الصفوف الظاهرة. والكلام صار بعرض الصف بدون تظليل.
