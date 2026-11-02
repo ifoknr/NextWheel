@@ -497,7 +497,9 @@ async function _runTool(tool, strings) {
       `Kernel: ${twEnv.device.kernel}\n` +
       `ABI: ${twEnv.device.arch}\n` +
       `--- state ---\n${state.errno === 0 ? state.stdout : '(none)'}`
-    await exec(`cat > ${out} <<'TWEOF'\n${report}\nTWEOF`)
+    /* INFO: base64, not a heredoc: a report line that read "TWEOF" would end the heredoc
+               early and the shell would run the lines after it. */
+    await exec(`echo '${btoa(unescape(encodeURIComponent(report + '\n')))}' | base64 -d > ${out}`)
     try { await navigator.clipboard.writeText(report) } catch (e) {}
     toast(t.savedTo.replace('%s', out))
   } else if (tool === 'denylist') {

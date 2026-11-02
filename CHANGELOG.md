@@ -3,10 +3,12 @@
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
 ## v0.0.19
-- إصلاح: مفاتيح الإعدادات تحفظ حالتها الصح عند التنقّل بين التبويبات — سويتش تطفيه ما عاد يرجع مفعّلاً بعد تغيير الصفحة والرجوع. (نقل من تحديث Treat Wheel الأصلي.)
+- إصلاح: مفاتيح الإعدادات تحفظ حالتها الصح عند التنقّل بين التبويبات — سويتش تطفيه ما عاد يرجع مفعّلاً بعد تغيير الصفحة والرجوع. (من تحديث Treat Wheel الأصلي.)
+- أمان: رسائل الأخطاء وتقرير التشخيص تُكتب للملف بدون ما تمر على الـ shell، فما يتنفّذ أي نص داخلها.
 
 **English**
-- Fixed: setting switches keep their real state when switching tabs — a switch you turn off no longer comes back on after leaving and returning. (Ported from upstream Treat Wheel.)
+- Fixed: setting switches keep their real state when switching tabs — a switch you turn off no longer comes back on after leaving and returning. (From upstream Treat Wheel.)
+- Security: error messages and the diagnostics report are written to file without passing through the shell, so no text inside them can run.
 
 ## v0.0.18
 - شكل جديد: أيقونة رمادية هادية مثل باقي أدوات IFOKNR، واسم الأداة بخط جديد فوق، وتوقيع IFOKNR في صفحة الحقوق.

@@ -613,7 +613,7 @@ window.addEventListener('error', function (event) {
 
   console.error('Unhandled error:', event.error)
 
-  exec(`echo "Error: ${event.message}\n\n${event.error.stack}" > /data/adb/rezygisk/webui_error.log`)
+  writeErrorLog(`Error: ${event.message}\n\n${event.error?.stack}`)
 })
 
 window.addEventListener('unhandledrejection', function (event) {
@@ -621,8 +621,14 @@ window.addEventListener('unhandledrejection', function (event) {
 
   console.error('Unhandled promise rejection:', event.reason)
 
-  exec(`echo "Error (Unhandled Rejection): ${event.reason}\n\n${event.reason.stack}" > /data/adb/rezygisk/webui_error.log`)
+  writeErrorLog(`Error (Unhandled Rejection): ${event.reason}\n\n${event.reason?.stack}`)
 })
+
+/* INFO: An error message can hold quotes, $ or backticks. Passing it base64-encoded keeps
+           the shell from running any of it. */
+function writeErrorLog(text) {
+  exec(`echo '${btoa(unescape(encodeURIComponent(text)))}' | base64 -d > /data/adb/rezygisk/webui_error.log`)
+}
 
 window.addEventListener('popstate', async () => {
   if (history.state !== null) return;
