@@ -469,8 +469,8 @@ function _wireTools(strings) {
     ['reboot', 'softReboot', 'softRebootDesc', true]
   ]
   el.innerHTML = tools.map(([ic, nm, ds, danger]) =>
-    `<div class="tw_tool${danger ? ' danger' : ''}" data-tool="${nm}"><div class="tw_tool_ic">${_toolSvg(TOOL_ICONS[ic])}</div>` +
-    `<div class="tw_tool_nm">${esc(t[nm])}</div><div class="tw_tool_ds">${esc(t[ds])}</div></div>`
+    `<button type="button" class="tw_tool${danger ? ' danger' : ''}" data-tool="${nm}"><div class="tw_tool_ic" aria-hidden="true">${_toolSvg(TOOL_ICONS[ic])}</div>` +
+    `<div class="tw_tool_nm">${esc(t[nm])}</div><div class="tw_tool_ds">${esc(t[ds])}</div></button>`
   ).join('')
 
   el.querySelectorAll('.tw_tool').forEach((card) => {
@@ -516,9 +516,46 @@ async function _runTool(tool, strings) {
     }
     toast(t.denylistHint)
   } else if (tool === 'softReboot') {
+    /* INFO: Restarting Zygote closes every app, so it is never done on a single tap. */
+    const ok = await _confirm(t.restartTitle || 'Restart Zygote?', t.restartMessage || 'All open apps close and the Android framework restarts.',
+      t.restartConfirm || 'Restart', t.cancel || 'Cancel')
+    if (!ok) return
     toast(t.rebooting)
     await exec('setprop ctl.restart zygote; setprop ctl.restart zygote_secondary')
   }
+}
+
+/* INFO: A small confirm dialog: focus starts on Cancel, Escape or a tap outside cancels,
+           and focus returns to the button that opened it. */
+function _confirm(title, message, okLabel, cancelLabel) {
+  return new Promise((resolve) => {
+    const opener = document.activeElement
+    const dlg = document.createElement('div')
+    dlg.className = 'tw_dlg'
+    dlg.setAttribute('role', 'alertdialog')
+    dlg.setAttribute('aria-modal', 'true')
+    dlg.setAttribute('aria-labelledby', 'tw_dlg_t')
+    dlg.setAttribute('aria-describedby', 'tw_dlg_d')
+    dlg.innerHTML = `<div class="tw_dlg_box"><div class="tw_dlg_t" id="tw_dlg_t">${esc(title)}</div>` +
+      `<div class="tw_dlg_d" id="tw_dlg_d">${esc(message)}</div><div class="tw_dlg_btns">` +
+      `<button type="button" class="tw_dlg_btn" data-ok="0">${esc(cancelLabel)}</button>` +
+      `<button type="button" class="tw_dlg_btn danger" data-ok="1">${esc(okLabel)}</button></div></div>`
+    const close = (ok) => {
+      document.removeEventListener('keydown', onKey)
+      dlg.remove()
+      if (opener && opener.focus) opener.focus()
+      resolve(ok)
+    }
+    const onKey = (e) => { if (e.key === 'Escape') close(false) }
+    dlg.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-ok]')
+      if (b) close(b.getAttribute('data-ok') === '1')
+      else if (e.target === dlg) close(false)
+    })
+    document.addEventListener('keydown', onKey)
+    document.body.appendChild(dlg)
+    dlg.querySelector('[data-ok="0"]').focus()
+  })
 }
 
 export async function loadOnce() {}

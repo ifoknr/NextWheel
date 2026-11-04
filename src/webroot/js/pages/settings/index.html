@@ -4,7 +4,7 @@
   <div style="padding: 10px 0px;"></div>
 
   <!-- INFO: Change language -->
-  <div id="lang_page_toggle" class="small_card dimc card_animation" style="margin-top: 15px;">
+  <button type="button" id="lang_page_toggle" class="small_card dimc card_animation" style="margin-top: 15px; width: calc(100% - 32px);">
     <div class="dimc" style="display: inline-block;">
       <div class="dimc content" style="font-size: 14.5px; padding-left: 5px; padding-top: 6px; padding-bottom: 2px;">
         {{language.title}}
@@ -13,7 +13,7 @@
         {{language.description}}
       </div>
     </div>
-  </div>
+  </button>
 
   <!-- INFO: Theme (day/night) selector -->
   <div class="dim card" style="margin-top: 15px;">
@@ -21,9 +21,9 @@
       {{theme.title}}
     </div>
     <div class="tw_seg" id="tw_theme_seg">
-      <div class="tw_seg_btn dimc" data-theme-opt="system">{{theme.system}}</div>
-      <div class="tw_seg_btn dimc" data-theme-opt="dark">{{theme.dark}}</div>
-      <div class="tw_seg_btn dimc" data-theme-opt="light">{{theme.light}}</div>
+      <button type="button" class="tw_seg_btn dimc" data-theme-opt="system">{{theme.system}}</button>
+      <button type="button" class="tw_seg_btn dimc" data-theme-opt="dark">{{theme.dark}}</button>
+      <button type="button" class="tw_seg_btn dimc" data-theme-opt="light">{{theme.light}}</button>
     </div>
   </div>
 
@@ -47,18 +47,18 @@
   <div class="dim card" style="margin-top: 15px;">
     <div class="dimc content">
       <div id="mcre_title" class="dimc" style="font-size: 14.5px">{{moduleDevelopers}}</div>
-      <div id="credit_ifoknr" credit-link="https://github.com/ifoknr" class="dimc desc tw_credit" style="font-size: 12.5px; margin-top: 3px;">
+      <button type="button" id="credit_ifoknr" credit-link="https://github.com/ifoknr" class="dimc desc tw_credit" style="display: block; font-size: 12.5px; margin-top: 3px;">
         <img class="tw_sig tw_sig_dark" src="assets/ifoknr-dark.svg" alt="IFOKNR"><img class="tw_sig tw_sig_light" src="assets/ifoknr-light.svg" alt="IFOKNR"> <span class="tw_credit_url">github.com/ifoknr</span>
-      </div>
+      </button>
       <div class="dimc desc" style="font-size: 12.5px; margin-top: 3px;">
-        {{basedOn}}: <span id="credit_thepedroo" credit-link="https://github.com/ThePedroo" class="tw_credit">ThePedroo</span>, <span id="credit_rainyxeon" credit-link="https://github.com/RainyXeon" class="tw_credit">RainyXeon</span>
+        {{basedOn}}: <button type="button" id="credit_thepedroo" credit-link="https://github.com/ThePedroo" class="tw_credit">ThePedroo</button>, <button type="button" id="credit_rainyxeon" credit-link="https://github.com/RainyXeon" class="tw_credit">RainyXeon</button>
       </div>
     </div>
 
     <div class="dimc" style="margin-top: 15px;">
       <div id="webcre_title" class="dimc" style="font-size: 14.5px">{{WebUIDevelopers}}</div>
       <div class="dimc desc" style="font-size: 12.5px; margin-top: 3px;">
-        <span id="credit_ifoknr_webui" credit-link="https://github.com/ifoknr" class="tw_credit"><img class="tw_sig tw_sig_dark" src="assets/ifoknr-dark.svg" alt="IFOKNR"><img class="tw_sig tw_sig_light" src="assets/ifoknr-light.svg" alt="IFOKNR"></span>, <span id="credit_rainyxeon_webui" credit-link="https://github.com/RainyXeon" class="tw_credit">RainyXeon</span>
+        <button type="button" id="credit_ifoknr_webui" credit-link="https://github.com/ifoknr" class="tw_credit"><img class="tw_sig tw_sig_dark" src="assets/ifoknr-dark.svg" alt="IFOKNR"><img class="tw_sig tw_sig_light" src="assets/ifoknr-light.svg" alt="IFOKNR"></button>, <button type="button" id="credit_rainyxeon_webui" credit-link="https://github.com/RainyXeon" class="tw_credit">RainyXeon</button>
       </div>
     </div>
   </div>

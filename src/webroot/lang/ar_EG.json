@@ -115,7 +115,11 @@
         "softRebootDesc": "إعادة تشغيل Zygote",
         "savedTo": "تم الحفظ في %s",
         "denylistHint": "أدِر قائمة الحظر من تطبيق مدير الروت.",
-        "rebooting": "جارٍ إعادة تشغيل Zygote…"
+        "rebooting": "جارٍ إعادة تشغيل Zygote…",
+        "restartTitle": "تعيد تشغيل Zygote؟",
+        "restartMessage": "كل التطبيقات المفتوحة تتقفل وواجهة أندرويد تعيد التشغيل.",
+        "restartConfirm": "إعادة التشغيل",
+        "cancel": "إلغاء"
       }
     },
     "actions": {

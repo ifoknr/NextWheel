@@ -8,9 +8,9 @@
         <div class="tw_updated" id="tw_updated"></div>
       </div>
     </div>
-    <div class="tw_refresh" id="tw_refresh" role="button" aria-label="Refresh">
-      <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
-    </div>
+    <button type="button" class="tw_refresh" id="tw_refresh" aria-label="Refresh">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
+    </button>
   </div>
 
   <!-- INFO: Status hero: ring + title/subtitle/chips on the left, stat trio on the right -->
@@ -44,12 +44,12 @@
       <div class="tw_sec">{{status.title}}</div>
       <div class="tw_status_grid" id="tw_status_grid"></div>
 
-      <div class="tw_sec">{{protections.title}} <span class="tw_link" id="tw_manage">{{protections.manage}}</span></div>
+      <div class="tw_sec">{{protections.title}} <button type="button" class="tw_link" id="tw_manage">{{protections.manage}}</button></div>
       <div class="tw_prot_card" id="tw_protections_list"></div>
     </div>
 
     <div class="tw_col">
-      <div class="tw_sec">{{dash.device}} <span class="tw_link" id="tw_copy">{{dash.copy}}</span></div>
+      <div class="tw_sec">{{dash.device}} <button type="button" class="tw_link" id="tw_copy">{{dash.copy}}</button></div>
       <div class="tw_device" id="tw_device"></div>
 
       <div class="tw_sec">{{tools.title}}</div>

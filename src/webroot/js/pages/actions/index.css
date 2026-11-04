@@ -21,7 +21,7 @@
   inset: 0;
   cursor: pointer;
   background-color: var(--button);
-  transition: 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
   border-radius: 34px;
 }
 
@@ -33,7 +33,7 @@
   left: 6px;
   bottom: 6px;
   background-color: #fff;
-  transition: 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
   border-radius: 50%;
 }
 
@@ -43,7 +43,7 @@ input:checked + .slider:before {
 
 input:checked + .slider {
   background-color: var(--button-enabled);
-  transition: 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
 }
 
 .action_card {

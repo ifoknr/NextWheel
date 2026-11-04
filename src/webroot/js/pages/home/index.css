@@ -115,8 +115,8 @@
 
 .tw_switch { position: relative; display: inline-block; width: 46px; height: 26px; flex: 0 0 auto; }
 .tw_switch input { opacity: 0; width: 0; height: 0; }
-.tw_slider { position: absolute; inset: 0; cursor: pointer; background: var(--button); transition: .3s; border-radius: 34px; }
-.tw_slider:before { position: absolute; content: ""; height: 20px; width: 20px; inset-inline-start: 3px; bottom: 3px; background: #fff; transition: .3s; border-radius: 50%; }
+.tw_slider { position: absolute; inset: 0; cursor: pointer; background: var(--button); transition: background-color .3s; border-radius: 34px; }
+.tw_slider:before { position: absolute; content: ""; height: 20px; width: 20px; inset-inline-start: 3px; bottom: 3px; background: #fff; transition: transform .3s; border-radius: 50%; }
 .tw_switch input:checked + .tw_slider { background: var(--green); }
 .tw_switch input:checked + .tw_slider:before { transform: translateX(20px); }
 :root[dir="rtl"] .tw_switch input:checked + .tw_slider:before { transform: translateX(-20px); }

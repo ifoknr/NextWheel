@@ -115,7 +115,11 @@
         "softRebootDesc": "Restart Zygote",
         "savedTo": "Saved to %s",
         "denylistHint": "Manage the denylist in your root manager.",
-        "rebooting": "Restarting Zygote…"
+        "rebooting": "Restarting Zygote…",
+        "restartTitle": "Restart Zygote?",
+        "restartMessage": "All open apps close and the Android framework restarts.",
+        "restartConfirm": "Restart",
+        "cancel": "Cancel"
       }
     },
     "actions": {
