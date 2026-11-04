@@ -2,6 +2,16 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.20
+- شكل جديد (تصميم 5): حالة الأداة بخط كبير ونقطة لون وحدة، خطوط رفيعة بدل الكروت، مفاتيح وأزرار مربّعة، وأرقام بخط mono. داكن وفاتح، ونفس الشكل في أدوات NEXT الثلاث.
+- Soft reboot يطلب تأكيد قبل ما يعيد تشغيل Zygote، لأنه يقفل كل التطبيقات.
+- كل الأزرار صارت أزرار حقيقية تشتغل بالكيبورد وقارئ الشاشة، مع مؤشر تركيز واضح.
+
+**English**
+- New look (design 5): the state in large type with one status dot, hairline rules instead of cards, square switches and buttons, monospace figures. Dark and light, the same across all three NEXT tools.
+- Soft reboot asks first before restarting Zygote, since it closes every app.
+- Every button is a real button that works with a keyboard and screen readers, with a visible focus ring.
+
 ## v0.0.19
 - إصلاح: مفاتيح الإعدادات تحفظ حالتها الصح عند التنقّل بين التبويبات — سويتش تطفيه ما عاد يرجع مفعّلاً بعد تغيير الصفحة والرجوع. (من تحديث Treat Wheel الأصلي.)
 - أمان: رسائل الأخطاء وتقرير التشخيص تُكتب للملف بدون ما تمر على الـ shell، فما يتنفّذ أي نص داخلها.
